@@ -203,12 +203,12 @@ if plotflag
     l1 = legend([p,pfn(1),pte]);
     set(l1,'interpreter','latex')
     set(l1,'location','northeast')
-    % set(l1,'fontsize',12)
     xlabel('Frequency [Hz]','interpreter','latex')
     ylabel('Normalized power \& excitation [ ]','interpreter','latex')
     xlim([0.2, 1.4])
     set(gca,'YTick',0:0.25:1)
-    set(findall(fh(1),'-property','FontSize'),'FontSize',14)
+    set(findall(fh(3),'-property','FontSize'),'FontSize',14)
+    set(l1,'FontSize',12)
     ylim([0,Inf])
     
     clear pfn pte
@@ -275,7 +275,6 @@ if plotflag
     set(l2,'location','northeast',...
         'interpreter','latex')
     
-    
     for ii = 1:2
         yl = ylim(ax(ii));
         for jj = 1
@@ -287,8 +286,10 @@ if plotflag
             'MarkerSize',3,'DisplayName','Wave energy freq., $f_e$',...
             'MarkerEdgeColor','k');
     end
+    
     title('')
-    %     set(findall(fh(2),'-property','FontSize'),'FontSize',14)
+    set(findall(fh(4),'-property','FontSize'),'FontSize',14)
+    set(l2,'FontSize',12)
     
 else
     fh = [];
