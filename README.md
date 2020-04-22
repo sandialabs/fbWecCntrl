@@ -2,7 +2,7 @@
 
 **NOTE: this code is not supported and users should not expect responses to issues**
 
-This set of MATLAB functions and scripts demonstrates a causal impedance matching approach to wave energy converter (WEC) control design. The methods applied in this code is detailed in the following paper, and represents a fork of code originally published on [MHK-DR](https://mhkdr.openei.org/submissions/315).
+fbWecCntrl is set of MATLAB functions and scripts demonstrating a causal impedance matching approach to wave energy converter (WEC) control design. The methods applied in this code are detailed in the following paper, and represents a fork of code originally published on [MHK-DR](https://mhkdr.openei.org/submissions/315).
 
 ```bibtex
 @Article{Coe2020a,
@@ -16,19 +16,18 @@ This set of MATLAB functions and scripts demonstrates a causal impedance matchin
 ## Getting started
 This code has been tested on MATLAB 2020a (9.8.0.1323502) and has the following dependencies.
 
-Dependency                          | Website                                                         	| Required?
------------------------------------ | -----------------------------------------------------------------	| ---------
-MATLAB                              | https://www.mathworks.com/products/matlab.html                  	| yes
-MATLAB Control System Toolbox 		| https://www.mathworks.com/products/control.html 					| yes
-MATLAB Optimization Toolbox         | https://www.mathworks.com/products/optimization.html            	| yes
-WAFO<sup>1</sup>                    | https://github.com/wafo-project/wafo                            	| no
-export_fig<sup>2</sup>   			| https://github.com/altmany/export_fig 							| no
+Dependency                          | Website                                                         	 | Required?
+----------------------------------- | ------------------------------------------------------------------ | ---------
+MATLAB                              | https://www.mathworks.com/products/matlab.html                  	 | yes
+MATLAB Control System Toolbox 		  | https://www.mathworks.com/products/control.html 					         | yes
+MATLAB Optimization Toolbox         | https://www.mathworks.com/products/optimization.html            	 | yes
+WAFO<sup>1</sup>                    | https://github.com/wafo-project/wafo                            	 | no
+export_fig<sup>2</sup>   			      | https://github.com/altmany/export_fig 							               | no
 
 <sup>1</sup>_[WAFO](https://github.com/wafo-project/wafo) is used to produce wave spectra._ 
-
 <sup>2</sup>_[export_fig](https://github.com/altmany/export_fig) is used to produce PDFs figures._ 
 
-1. **Download the WecOptTool software**: Clone the repository or download an archive. If required, unzip the archive to a path of your choosing.
+1. **Download the fbWecCntrl software**: Clone the repository or download an archive. If required, unzip the archive to a path of your choosing.
 
 2. **Add fbWecCntrl to your MATLAB path**: Add the necessary directories to your MATLAB path using the MATLAB command prompt.
 
