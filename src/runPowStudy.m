@@ -207,8 +207,8 @@ if plotflag
     ylabel('Normalized power \& excitation [ ]','interpreter','latex')
     xlim([0.2, 1.4])
     set(gca,'YTick',0:0.25:1)
-    set(findall(fh(3),'-property','FontSize'),'FontSize',14)
-    set(l1,'FontSize',12)
+    set(findall(fh(3),'-property','FontSize'),'FontSize',12)
+    set(l1,'FontSize',10)
     ylim([0,Inf])
     
     clear pfn pte
@@ -288,8 +288,9 @@ if plotflag
     end
     
     title('')
-    set(findall(fh(4),'-property','FontSize'),'FontSize',14)
-    set(l2,'FontSize',12)
+    set(findall(fh(4),'-property','FontSize'),'FontSize',12)
+    set(findall(fh(4),'-property','interpreter'),'interpreter','latex')
+    set(l2,'FontSize',8)
     
 else
     fh = [];
