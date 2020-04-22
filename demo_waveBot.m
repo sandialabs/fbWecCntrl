@@ -36,7 +36,7 @@ N = 12.4666;            % gear ratio
 motspecs = {Kt, R, N};  % assemble into structure
 
 % generate sea state
-Hm0 = 15*2.54e-2;
+Hm0 = 0.127;
 Tp = 3;
 gamma = 1.0;
 S = jonswap(2*pi*f,[Hm0, Tp, gamma]);
