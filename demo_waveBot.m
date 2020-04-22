@@ -50,7 +50,7 @@ plotFlag = 1;       % enable plotting
 % set xlims
 for ii = 1:length(fh)
     figure(fh(ii))
-    xlim(fh(ii),[0.2,1])
+    xlim([0.2,1])
 end
 
 return
