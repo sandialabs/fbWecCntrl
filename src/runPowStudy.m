@@ -233,7 +233,7 @@ if plotflag
     CntrlPI = -1*tf([powStudy(1).x(1),powStudy(1).x(2)],[1,0]);
     frfZpi = squeeze(freqresp(CntrlPI,2*pi*f));
     
-    CntrlP = -1*tf([powStudy(1).x(1),0],[1,0]);
+    CntrlP = -1*tf([powStudy(2).x(1),0],[1,0]);
     frfZp = squeeze(freqresp(CntrlP,2*pi*f));
     
     
