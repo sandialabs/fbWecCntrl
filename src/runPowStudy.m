@@ -94,10 +94,10 @@ end
 % optimization solver options
 opts = optimoptions('fminunc');
 opts.Display = 'off';
-opts.MaxFunEvals = 5e3;
-opts.TolX = 1e-8;
-opts.TolFun = 1e-8;
-opts.OptimalityTolerance = 1e-8;
+% opts.MaxFunEvals = 5e3;
+% opts.TolX = 1e-8;
+% opts.TolFun = 1e-8;
+% opts.OptimalityTolerance = 1e-8;
 % opts.PlotFcns = @optimplotfval;
 
 for ii = 1:length(powStudy)
