@@ -57,6 +57,9 @@ plotFlag = 1;       % enable plotting
 %% Run analysis
 
 [powStudy,fh] = runPowStudy(f,Zi,Hex,S,motspecs,plotFlag,opts);
+disp(powStudy(1).gainMatrix)    % displays gain matrix as complex matrix
+                                % without frequency dependency, such that
+                                % k(i,j) = kP(i,j) -1i kI(i,j)
 
 % set xlims
 for ii = 1:length(fh)

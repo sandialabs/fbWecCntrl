@@ -61,16 +61,18 @@ Fe = Hex .* ampSpect;
 
 % create PI controller problem
 powStudy(1).Name = 'PI';
-powStudy(1).cntrl = @(x) mimoPi(x,nDof,w,opts.symFlag,opts.diagFlag);
-powStudy(1).x0 = mimoX0(nDof,opts.symFlag,opts.diagFlag);
+powStudy(1).nGains = 2;
 
 % create P ("resistive damping") controller problem
 powStudy(2).Name = 'P';
-powStudy(2).cntrl = @(x) repmat(diag(x),[1,1,n]);
-powStudy(2).x0 = zeros(nDof,1);
+powStudy(2).nGains = 1;
 
-% populate other fields
+% auto populate other fields
 for ii = 1:length(powStudy)
+    powStudy(ii).cntrl = @(x) mimoPi(x,...
+        powStudy(ii).nGains,nDof,w,opts.symFlag,opts.diagFlag);
+    powStudy(ii).x0 = mimoX0(powStudy(ii).nGains,...
+        nDof,opts.symFlag,opts.diagFlag);
     powStudy(ii).fn = naturalRes(f,Zi);
     powStudy(ii).R = R;
     powStudy(ii).Kt = Kt;
@@ -82,6 +84,9 @@ for ii = 1:length(powStudy)
     powStudy(ii).S = S;
     powStudy(ii).powObj = @(x) WecPower(Zi,Fe,powStudy(ii).cntrl(x),Kt,R,N);
     powStudy(ii).powModel = @(C) WecPower(Zi,Fe,C,Kt,R,N);
+    powStudy(ii).symFlag = opts.symFlag;
+    powStudy(ii).diagFlag = opts.diagFlag;
+    powStudy(ii).nDof = nDof;
 end
 
 %% Optimization solution
@@ -107,6 +112,9 @@ for ii = 1:length(powStudy)
     
     % store results
     powStudy(ii).x = x;
+    powStudy(ii).gainMatrix = mimoPi(powStudy(ii).x,...
+        powStudy(ii).nGains,powStudy(ii).nDof,1,...
+        powStudy(ii).symFlag,powStudy(ii).diagFlag);
     powStudy(ii).fval = fval;
     powStudy(ii).ef = ef;
     powStudy(ii).outp = outp;
@@ -297,62 +305,6 @@ else
     
 end
 
-
-end
-
-function [C] = mimoPi(x,nDof,w,symFlag,diagFlag)
-
-w = w(:);
-
-nFreq = length(w);
-
-n = length(x);
-
-kP = x(1:n/2);
-kI = x(n/2+1:n);
-
-if symFlag && nDof > 1
-    kP = [kP;flipud(kP)];
-    kI = [kI;flipud(kI)];
-end
-
-if diagFlag
-    CP = repmat(diag(kP),[1,1,nFreq]);
-    tmp = diag(kI);
-    CI = -1i * reshape(tmp(:)./w',[nDof,nDof,nFreq]);
-else
-    CP = repmat(reshape(kP,[nDof,nDof]),[1,1,nFreq]);
-    CI = -1i * reshape(kI./w',[nDof,nDof,nFreq]);
-end
-
-C = CP + CI;
-
-end
-
-
-function x0 = mimoX0(nDof,symFlag,diagFlag)
-% 
-
-if nDof == 1
-    nVars = 2;
-else
-    if diagFlag
-        if symFlag
-            nVars = nDof;
-        else
-            nVars = 2*nDof;
-        end
-    else
-        if symFlag
-            nVars = 2*sum(sum(triu(ones(nDof,nDof),1) ...
-                + diag([ones(nDof/2,1);zeros(nDof/2,1)])));
-        else
-            nVars = 2*nDof^2;
-        end
-    end
-end
-
-x0 = zeros(nVars,1);
 
 end
 
