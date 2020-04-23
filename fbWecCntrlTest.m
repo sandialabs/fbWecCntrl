@@ -1,4 +1,3 @@
-
 % Copyright 2020 National Technology & Engineering Solutions of Sandia, 
 % LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the 
 % U.S. Government retains certain rights in this software.
@@ -92,14 +91,9 @@ end
 
 function test_waveBot_mono(testcase)
 
-% rho = 1025;
-% g = 9.81;
-%
 T = 2.5;
 amp = 0.1;
 H = amp*2;
-%
-% J = rho*g^2/(32*pi)*T*H^2;
 
 Hm0 = [0.127];
 Tp = [1.6];
@@ -255,7 +249,6 @@ S = jonswap(2*pi*f,[Hm0, Tp, gamma]);
 opts.symFlag = 1;
 opts.diagFlag = 0;
 [powStudy,~] = runPowStudy(f,Zi,Hex,S,motspecs,0,opts);
-powStudy(1).x
 
 evals = [-2.276541202491610;...
     -0.923866807794542;...
