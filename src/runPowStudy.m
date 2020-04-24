@@ -271,7 +271,7 @@ if plotflag
     xlabel(ax(2),'Frequency [Hz]')
     
     for ii = 1:2
-        [pl(ii)] = addGradientPatch(ax(ii),f,Fe(1,:),0.2);
+        [pl(ii)] = addAreaPatch(ax(ii),f,Fe(1,:),0.5);
     end
     
     l2 = legend(ax(2),[pl(2),Zp(:)'],...
@@ -392,8 +392,8 @@ y = abs(y(:));
 
 yl = ylim(axh);
 
-b(1) = find(y>max(y)*0.5,1);
-b(2) = find(y>max(y)*0.5,1,'last');
+b(1) = find(y>max(y)*thresh,1);
+b(2) = find(y>max(y)*thresh,1,'last');
 
 xdat = x([b(1), b(2), b(2), b(1)]);
 ydat = [yl(2), yl(2), yl(1), yl(1)];
