@@ -16,6 +16,8 @@
 % 
 %     You should have received a copy of the GNU General Public License
 %     along with fbWecCntrl.  If not, see <https://www.gnu.org/licenses/>.
+%
+% -------------------------------------------------------------------------
 %% Clear everything
 
 clc
@@ -26,9 +28,9 @@ close all
 
 % load device model
 mf = matfile(fullfile('data','foswec_model.mat'));
-f = mf.f;
-Hex = mf.Hex;
-Zi = mf.Zi;
+f = mf.f;       % frequency vector [Hz]
+Hex = mf.Hex;   % excitation model (in: wave elev., out: flap torque)
+Zi = mf.Zi;     % impedance model (in: flap velocity, out: flap torque)
 
 Kt = 0.943;     % motor torque constant
 R = 1.082*0;    % motor electrical winding resistance (set to 0 for mech power)

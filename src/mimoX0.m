@@ -16,7 +16,8 @@
 %
 %     You should have received a copy of the GNU General Public License
 %     along with fbWecCntrl.  If not, see <https://www.gnu.org/licenses/>.
-
+%
+% -------------------------------------------------------------------------
 function [x0,nVars] = mimoX0(nGains,nDof,symFlag,diagFlag)
 % Finds the number of gains for a given MIMO feedback controller and
 % creates a column vector of zeros for an initial guess.
@@ -27,7 +28,8 @@ function [x0,nVars] = mimoX0(nGains,nDof,symFlag,diagFlag)
 %   symFlag     set to one for symmetric 
 %               (M == M.' AND rot90(M) == rot90(M.')
 %   diagFlag    set to one for diagonal (isdiag(M) == 1)
-
+%
+% -------------------------------------------------------------------------
 
 if nDof == 1                    % SISO
     nVars = nGains;

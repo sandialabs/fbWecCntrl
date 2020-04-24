@@ -15,7 +15,8 @@
 %     GNU General Public License for more details.
 % 
 %     You should have received a copy of the GNU General Public License
-%     along with fbWecCntrl.  If not, see <https://www.gnu.org/licenses/>.
+%     along with fbWecCntrl.  If not, see <https://www.gnu.org/licenses/>.%
+% -------------------------------------------------------------------------
 %% Main function to generate tests
 
 function tests = fbWecCntrlTest

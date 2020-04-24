@@ -16,7 +16,8 @@
 %
 %     You should have received a copy of the GNU General Public License
 %     along with fbWecCntrl.  If not, see <https://www.gnu.org/licenses/>.
-
+%
+% -------------------------------------------------------------------------
 function [powStudy,fh] = runPowStudy(f,Zi,Hex,S,motorSpecs,plotflag,opts)
 % Designs P and PI controllers for a given WEC (specified by Zi and Hex)
 % and wave spectrum (specified by S).
@@ -33,6 +34,8 @@ function [powStudy,fh] = runPowStudy(f,Zi,Hex,S,motorSpecs,plotflag,opts)
 %   opts        (optional) structure to specify controller options
 %     .symFlag  set to 1 to force controller to be symmetric (MIMO)
 %     .diagFlag set to 1 to force diagonal controller (MIMO)
+%
+% -------------------------------------------------------------------------
 
 if nargin < 7
     opts.symFlag = 1;
@@ -308,26 +311,42 @@ end
 
 end
 
-function [P, P_f, P_ub, Pub_f]= WecPower(Zi, Fe, C, Kt, R, gear_ratio)
+function [P, P_f, P_ub, Pub_f]= WecPower(Zi, Fe, C, Kt, R, N)
+% Calculates power based on impedance, Zi, excitation, Fe, and feedback
+% controller, C (along with PTO specifications).
+%
+% Args.
+%   Zi      impedance model (in: velocity, out: torque) with 
+%           size(Zi) = [nDof,nDof,nFreq]
+%   Fe      excitation spectrum with size(Fe) = [nDof, nFreq]
+%   C       control model (in: velocity, out: torque) with 
+%           size(C) = [nDof,nDof,nFreq]
+%   Kt      torque constant with size(Kt) = [nDof, nDof] 
+%           and isdiag(Kt) = 1
+%   R       motor winding resistance with size(R) = [nDof, nDof] 
+%           and isdiag(R) = 1
+%   N       gear ratio (in: torque at motor, out: torque at body) with
+%           size(N) = [nDof, nDof] and isdiag(N) = 1
+%
+% -------------------------------------------------------------------------
 
-% Zi = [DOF,DOF,FREQ]
-% Fe = [DOF, FREQ]
 
 % electrical constant for three-phase PMS motor
 Ke = Kt*2/3;
 
 nFreq = size(Zi,3);
 
-Pfh = zeros(nFreq,1);
-Pub_f = zeros(nFreq,1);
+% preallocate arrays 
+Pfh = zeros(nFreq,1);           % complex power
+Pub_f = zeros(nFreq,1);         % upper bound ('complex conjugate control')
 Omega = zeros(length(R),nFreq);
 
 for ii = 1:nFreq
     
     Omega(:,ii) = ( Zi(:,:,ii) - C(:,:,ii)) \ Fe(:,ii);
     
-    Pfh(ii) = ( (Ke*gear_ratio + (R/(gear_ratio*Kt))*C(:,:,ii)) * Omega(:,ii) )'...
-              * ( ((gear_ratio*Kt)\C(:,:,ii)*Omega(:,ii)) );
+    Pfh(ii) = ( (Ke*N + (R/(N*Kt))*C(:,:,ii)) * Omega(:,ii) )'...
+              * ( ((N*Kt)\C(:,:,ii)*Omega(:,ii)) );
           
     Pub_f(ii) = -1 * real(1/8* (Fe(:,ii)' /real(Zi(:,:,ii)))*Fe(:,ii));
 end
@@ -339,6 +358,13 @@ end
 
 
 function [fn] = naturalRes(f,Z)
+% Finds natural resonances based on impedance
+%
+% Args.
+%   f       frequency vector
+%   Z       impedance with size(Zi) = [nDof,nDof,nFreq]
+% 
+% -------------------------------------------------------------------------
 
 nDof = size(Z,1);
 for ii = 1:nDof
@@ -349,44 +375,22 @@ end
 
 end
 
-function [pl] = addGradientPatch(axh,x,y,beta)
-
-% xl = xlim(axh);
-% yl = ylim(axh);
+function [pl] = addAreaPatch(axh,x,y,thresh)
+% Adds an area patch in the region where y > thresh
 %
-% [X,Y] = meshgrid(x,yl);
-% Z = repmat(abs(y),[2,1]);
-% n = 100;
-% cmap = flipud(colormap(bone))*0.5*0.95 + 0.5;
-% colormap(cmap)
-% [~, pl] = contourf(axh,X,Y,Z,n,'LineStyle','none');
-% p = [];
+% Args.
+%   axh         axis handle
+%   x           x data
+%   y           y data
+%   thresh      threshold where if y > thresh the patch will be placed
+%
+% -------------------------------------------------------------------------
 
-% handle for legend entry
-% pl = patch(0,0,ones(1,3)*(1 - beta));
-% set(pl,'EdgeColor','none');
 
 x = x(:);
 y = abs(y(:));
 
-% n = length(x);
-%
-% yn = y ./ max(y);
-% [~, idx] = max(y);
-% xm = x(idx);
-
 yl = ylim(axh);
-
-% xdat = [x;flipud(x)];
-% ydat = [yl(2)*ones(n,1); yl(1)*ones(n,1)];
-%
-% tmp1 = (1 - yn*beta) * ones(1,3);
-% tmp2 = [tmp1; flipud(tmp1)];
-% cdat = shiftdim(tmp2,-1);
-%
-% p = patch(axh,xdat,ydat,cdat);
-% set(p,'FaceColor','interp','EdgeColor','none');
-% uistack(p,'bottom')
 
 b(1) = find(y>max(y)*0.5,1);
 b(2) = find(y>max(y)*0.5,1,'last');
@@ -396,9 +400,6 @@ ydat = [yl(2), yl(2), yl(1), yl(1)];
 
 pl = patch(axh,xdat,ydat,ones(1,3)*0.95);
 set(pl,'EdgeColor','none');
-
-% plot(axh,x(b(1))*ones(2,1),yl,'k')
-% plot(axh,x(b(2))*ones(2,1),yl,'k')
 
 uistack(pl,'bottom')
 set(axh,'Layer','top')
