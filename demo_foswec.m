@@ -33,9 +33,8 @@ Hex = mf.Hex;   % excitation model (in: wave elev., out: flap torque)
 Zi = mf.Zi;     % impedance model (in: flap velocity, out: flap torque)
 
 Kt = 0.943;     % motor torque constant
-R = 1.082;    % motor electrical winding resistance (0 for mech power)
+R = 1.082*0;    % motor electrical winding resistance (0 for mech power)
 N = 3.75;       % gear ratio
-
 
 % replicate for symetric MIMO system
 R = eye(size(Hex,1))*R;     
@@ -52,7 +51,7 @@ gamma = 1.0;
 S = jonswap(2*pi*f,[Hm0, Tp, gamma]);
 
 opts.symFlag = 1;   % force controller to be symmetric
-opts.diagFlag = 1;  % allow for cross-coupling control
+opts.diagFlag = 0;  % allow for cross-coupling control
 
 plotFlag = 1;       % enable plotting
 
