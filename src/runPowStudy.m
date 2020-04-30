@@ -270,6 +270,8 @@ if plotflag
     ylabel(ax(2),'Phase [deg]')
     xlabel(ax(2),'Frequency [Hz]')
     
+    ylim(ax(2),[-100,100])
+    
     for ii = 1:2
         [pl(ii)] = addAreaPatch(ax(ii),f,Fe(1,:),0.5);
     end
