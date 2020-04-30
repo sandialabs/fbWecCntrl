@@ -33,9 +33,8 @@ Hex = mf.Hex;   % excitation model (in: wave elev., out: flap torque)
 Zi = mf.Zi;     % impedance model (in: flap velocity, out: flap torque)
 
 Kt = 0.943;     % motor torque constant
-R = 1.082*0;    % motor electrical winding resistance (set to 0 for mech power)
+R = 1.082*0;    % motor electrical winding resistance (0 for mech power)
 N = 3.75;       % gear ratio
-
 
 % replicate for symetric MIMO system
 R = eye(size(Hex,1))*R;     
