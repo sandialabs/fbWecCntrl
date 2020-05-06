@@ -1,8 +1,8 @@
 # fbWecCntrl
 
-**NOTE: this code is not supported and users should not expect responses to issues**
+**NOTE: this code is fully-functional, but not supported and users should not expect responses to issues**
 
-fbWecCntrl is set of MATLAB functions and scripts demonstrating a causal impedance matching approach to wave energy converter (WEC) control design. The methods applied in this code are detailed in the following paper, and represents a fork of code originally published on [MHK-DR](https://mhkdr.openei.org/submissions/315).
+fbWecCntrl is a set of MATLAB functions and scripts demonstrating a causal impedance matching approach to wave energy converter (WEC) control design. The methods applied in this code are detailed in the following paper, and is a fork of code originally published on [MHK-DR](https://mhkdr.openei.org/submissions/315).
 
 ```bibtex
 @Article{Coe2020a,
