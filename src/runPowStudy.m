@@ -1,3 +1,20 @@
+function [powStudy,fh] = runPowStudy(f,Zi,Hex,S,motorSpecs,plotflag,opts)
+% Designs P and PI controllers for a given WEC (specified by Zi and Hex)
+% and wave spectrum (specified by S).
+% 
+% Args:
+%   f           frequency vector
+%   Zi          velocity:torque impedance (size(Zi) = [nDof,nDof,length(f)]
+%   Hex         excitation (size(Hex) = [nDof, length(f)]
+%   S           Wave spectrum in WAFO format
+%   motorSpecs  cell array with motor specifications {Kt, R, N}, where Kt
+%               is motor torque constant, R is motor winding resistance,
+%               and N is gearing
+%   plotFlag    set to 1 for plots
+%   opts        (optional) structure to specify controller options
+%     .symFlag  set to 1 to force controller to be symmetric (MIMO)
+%     .diagFlag set to 1 to force diagonal controller (MIMO)
+
 % Copyright 2020 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the
 % U.S. Government retains certain rights in this software.
@@ -16,24 +33,6 @@
 %
 %     You should have received a copy of the GNU General Public License
 %     along with fbWecCntrl.  If not, see <https://www.gnu.org/licenses/>.
-%
-% -------------------------------------------------------------------------
-function [powStudy,fh] = runPowStudy(f,Zi,Hex,S,motorSpecs,plotflag,opts)
-% Designs P and PI controllers for a given WEC (specified by Zi and Hex)
-% and wave spectrum (specified by S).
-% 
-% Args:
-%   f           frequency vector
-%   Zi          velocity:torque impedance (size(Zi) = [nDof,nDof,length(f)]
-%   Hex         excitation (size(Hex) = [nDof, length(f)]
-%   S           Wave spectrum in WAFO format
-%   motorSpecs  cell array with motor specifications {Kt, R, N}, where Kt
-%               is motor torque constant, R is motor winding resistance,
-%               and N is gearing
-%   plotFlag    set to 1 for plots
-%   opts        (optional) structure to specify controller options
-%     .symFlag  set to 1 to force controller to be symmetric (MIMO)
-%     .diagFlag set to 1 to force diagonal controller (MIMO)
 %
 % -------------------------------------------------------------------------
 
