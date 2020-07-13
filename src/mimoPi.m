@@ -32,6 +32,15 @@ function [C] = mimoPi(x,nGains,nDof,w,symFlag,diagFlag)
 %
 % -------------------------------------------------------------------------
 
+arguments
+    x (:,1) {mustBeReal}
+    nGains (1,1) {mustBeReal,mustBePositive}
+    nDof (1,1) {mustBeReal,mustBePositive}
+    w (:,1) {mustBeReal,mustBePositive}
+    symFlag (1,1) {mustBeNumericOrLogical}
+    diagFlag (1,1) {mustBeNumericOrLogical}
+end
+
 % prepare inputs
 w = w(:);
 nFreq = length(w);

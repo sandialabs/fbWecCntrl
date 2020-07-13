@@ -1,11 +1,11 @@
 function [powStudy,fh] = runPowStudy(f,Zi,Hex,S,motorSpecs,plotflag,opts)
-% Designs P and PI controllers for a given WEC (specified by Zi and Hex)
-% and wave spectrum (specified by S).
+% runPowStudy   designs P and PI controllers for a given WEC (specified by
+% Zi and Hex) and wave spectrum (specified by S).
 % 
 % Args:
 %   f           frequency vector
-%   Zi          velocity:torque impedance (size(Zi) = [nDof,nDof,length(f)]
-%   Hex         excitation (size(Hex) = [nDof, length(f)]
+%   Zi          velocity: torque impedance, size(Zi) = [nDof,nDof,length(f)]
+%   Hex         excitation, size(Hex) = [nDof, length(f)]
 %   S           Wave spectrum in WAFO format
 %   motorSpecs  cell array with motor specifications {Kt, R, N}, where Kt
 %               is motor torque constant, R is motor winding resistance,
@@ -36,10 +36,17 @@ function [powStudy,fh] = runPowStudy(f,Zi,Hex,S,motorSpecs,plotflag,opts)
 %
 % -------------------------------------------------------------------------
 
-if nargin < 7
-    opts.symFlag = 1;
-    opts.diagFlag = 1;
+arguments
+    f (:,1) double {mustBeReal, mustBePositive, mustBeNonNan}
+    Zi (:,:,:) double {mustBeNonNan}
+    Hex (:,:) double {mustBeNonNan}
+    S (1,1) struct
+    motorSpecs(1,3) cell {checkSizes(f,Zi,Hex,motorSpecs)}
+    plotflag (1,1) {mustBeNumericOrLogical} = 0 
+    opts struct = struct('symFlag',1,'diagFlag',1)
 end
+
+%%
 
 w = 2*pi*f;
 n = length(f);
@@ -309,8 +316,8 @@ end
 end
 
 function [P, P_f, P_ub, Pub_f]= WecPower(Zi, Fe, C, Kt, R, N)
-% Calculates power based on impedance, Zi, excitation, Fe, and feedback
-% controller, C (along with PTO specifications).
+% WecPower  Calculates power based on impedance, Zi, excitation, Fe, and
+% feedback controller, C (along with PTO specifications).
 %
 % Args.
 %   Zi      impedance model (in: velocity, out: torque) with 
@@ -355,7 +362,7 @@ end
 
 
 function [fn] = naturalRes(f,Z)
-% Finds natural resonances based on impedance
+% naturalRes    Finds natural resonances based on impedance
 %
 % Args.
 %   f       frequency vector
@@ -401,4 +408,29 @@ set(pl,'EdgeColor','none');
 uistack(pl,'bottom')
 set(axh,'Layer','top')
 
+end
+
+function checkSizes(f,Zi,Hex,motorSpecs)
+% checkSizes Ensure that key arguments have the correct shapes
+%
+% -------------------------------------------------------------------------
+    
+if ~isequal(size(Zi,1),size(Zi,2))
+    error('Argument sizes inconsistent')
+end
+
+if ~isequal(size(Zi,1),size(Hex,1))
+    error('Argument sizes inconsistent')
+end
+
+for ii = 1:3
+    if ~isequal(size(Zi,1),size(motorSpecs{ii},1))
+        error('Argument sizes inconsistent')
+    end
+end
+
+if ~isequal(size(Zi,3),size(f,1))
+    error('Argument sizes inconsistent')
+end
+    
 end

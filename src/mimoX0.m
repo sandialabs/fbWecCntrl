@@ -30,6 +30,13 @@ function [x0,nVars] = mimoX0(nGains,nDof,symFlag,diagFlag)
 %
 % -------------------------------------------------------------------------
 
+arguments
+    nGains (1,1) double {mustBeReal,mustBePositive}
+    nDof (1,1) double {mustBeReal,mustBePositive}
+    symFlag (1,1) {mustBeNumericOrLogical}
+    diagFlag (1,1) {mustBeNumericOrLogical}
+end
+
 if nDof == 1                    % SISO
     nVars = nGains;
 else
