@@ -1,16 +1,23 @@
 function [C] = mimoPi(x,nGains,nDof,w,symFlag,diagFlag)
-% Produces the transfer function for a P or PI controller
+% mimoPi    produces the transfer function for a P or PI controller
 %
-% Args.
-%   x       gains given as a column vector; if P controller, x = [kP]; if P
-%           controller, x = [kP;kI];
-%   nGains  number of gains (P: 1, PI: 2)
-%   nDof    numer of degrees of freedom in the MIMO system (assumed square)
-%   w       frequency vector [rad/s]
+% Args:
+%   x           gains given as a column vector; if P controller, x = [kP]; 
+%               if P controller, x = [kP;kI];
+%   nGains      number of gains (P: 1, PI: 2)
+%   nDof        numer of degrees of freedom in the MIMO system (assumed square)
+%   w           frequency vector [rad/s]
 %   symFlag     set to one for symmetric 
 %               (M == M.' AND rot90(M) == rot90(M.')
 %   diagFlag    set to one for diagonal (isdiag(M) == 1)
+%
+% Returns:
+%   C           Complex controller matrix with 
+%               C(i,j,k) = kP(i,j) - 1i * kI(i,j) / w(k)
+% 
+% See also mimoX0
 
+% -------------------------------------------------------------------------
 % Copyright 2020 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the
 % U.S. Government retains certain rights in this software.

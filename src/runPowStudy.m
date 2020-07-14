@@ -14,7 +14,14 @@ function [powStudy,fh] = runPowStudy(f,Zi,Hex,S,motorSpecs,plotflag,opts)
 %   opts        (optional) structure to specify controller options
 %     .symFlag  set to 1 to force controller to be symmetric (MIMO)
 %     .diagFlag set to 1 to force diagonal controller (MIMO)
+%
+% Returns:
+%   powStudy    struct with results
+%   fh          figure handles
+%
+% See also mimoPi, mimoX0
 
+% -------------------------------------------------------------------------
 % Copyright 2020 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the
 % U.S. Government retains certain rights in this software.
@@ -33,7 +40,6 @@ function [powStudy,fh] = runPowStudy(f,Zi,Hex,S,motorSpecs,plotflag,opts)
 %
 %     You should have received a copy of the GNU General Public License
 %     along with fbWecCntrl.  If not, see <https://www.gnu.org/licenses/>.
-%
 % -------------------------------------------------------------------------
 
 arguments
@@ -319,7 +325,7 @@ function [P, P_f, P_ub, Pub_f]= WecPower(Zi, Fe, C, Kt, R, N)
 % WecPower  Calculates power based on impedance, Zi, excitation, Fe, and
 % feedback controller, C (along with PTO specifications).
 %
-% Args.
+% Args:
 %   Zi      impedance model (in: velocity, out: torque) with 
 %           size(Zi) = [nDof,nDof,nFreq]
 %   Fe      excitation spectrum with size(Fe) = [nDof, nFreq]
@@ -332,11 +338,15 @@ function [P, P_f, P_ub, Pub_f]= WecPower(Zi, Fe, C, Kt, R, N)
 %   N       gear ratio (in: torque at motor, out: torque at body) with
 %           size(N) = [nDof, nDof] and isdiag(N) = 1
 %
+% Returns:
+%   P       Average generated power (convention: negative power is absorbed)
+%   P_f     Complex frequency dependent generated power
+%   P_ub    Upper bound for generated power (assumes no losses in PTO)
+%   Pub_f   Complex frequency dependent upper bound for generated power
+%
 % -------------------------------------------------------------------------
 
-
-% electrical constant for three-phase PMS motor
-Ke = Kt*2/3;
+Ke = Kt*2/3;                    % 3-phase PMS motor elect. const.
 
 nFreq = size(Zi,3);
 
@@ -364,9 +374,15 @@ end
 function [fn] = naturalRes(f,Z)
 % naturalRes    Finds natural resonances based on impedance
 %
-% Args.
+% Finds frequency location where imaginary part of impedance is at a
+% minimum
+%
+% Args:
 %   f       frequency vector
 %   Z       impedance with size(Zi) = [nDof,nDof,nFreq]
+%
+% Returns
+%   fn      natural frequency
 % 
 % -------------------------------------------------------------------------
 
@@ -411,7 +427,7 @@ set(axh,'Layer','top')
 end
 
 function checkSizes(f,Zi,Hex,motorSpecs)
-% checkSizes Ensure that key arguments have the correct shapes
+% checkSizes    Ensure that key arguments have the correct shapes
 %
 % -------------------------------------------------------------------------
     

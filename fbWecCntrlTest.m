@@ -36,7 +36,9 @@ end
 %% Test Functions
 
 function test_waveBot_pow(testcase)
-
+% test_waveBot_pow  Check solution against known power
+%
+% Known power established from early version of fbWecCntrl
 
 Hm0 = [0.127];
 Tp = 1.6;
@@ -62,6 +64,10 @@ verifyEqual(testcase,powStudy(1).P,eval,'RelTol',0.001)
 end
 
 function test_waveBot_gains(testcase)
+% test_waveBot_gains    Check solution against known WaveBot heave gains
+%
+% Known gains established from early version of fbWecCntrl and from
+% previous MASK data analysis
 
 Hm0 = [0.127];
 Tp = [1.6, 2.5, 3.5];
@@ -92,6 +98,7 @@ end
 end
 
 function test_waveBot_mono(testcase)
+% test_waveBot_mono     Ensure PI can reach optimal in monochromatic wave
 
 T = 2.5;
 amp = 0.1;
@@ -125,7 +132,8 @@ end
 
 
 function test_waveBot_resonance(testcase)
-
+% test_waveBot_resonance    At resonance (f = 0.625 Hz), P should match PI
+    
 T = 1/0.625;
 amp = 0.1;
 H = amp*2;
@@ -157,6 +165,11 @@ verifyEqual(testcase,powStudy(1).P,powStudy(2).P,'RelTol',0.001)
 end
 
 function test_waveBot_surgePitch(testcase)
+% test_waveBot_surgePitch   Check solution against known WaveBot surge and
+% pitch gains
+%
+% Known gains established from early version of fbWecCntrl and previous
+% MASK data analysis
 
 Zi = struct2array(load('Wavebot_Zi_v_enc_to_F_des_MIMO.mat'));
 WEC = struct2array(load('WEC_T3R2.mat'));
@@ -195,6 +208,8 @@ verifyEqual(testcase,powStudy(1).x,eval,'RelTol',1e-3)
 end
 
 function test_foswec_SingleFreq(testcase)
+% test_foswec_SingleFreq    Ensure PI can reach optimal in monochromatic
+% wave
 
 mf = matfile('foswec_model.mat');
 f = mf.f;
@@ -229,6 +244,9 @@ verifyEqual(testcase,powStudy(1).efc,1,'RelTol',0.01)
 end
 
 function test_foswec_gains(testcase)
+% test_foswec_gains     Check solution against known FOSWEC gains
+%
+% Known gains established from early version of fbWecCntrl
 
 mf = matfile('foswec_model.mat');
 f = mf.f;
