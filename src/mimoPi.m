@@ -36,14 +36,13 @@ function [C] = mimoPi(x,nGains,nDof,w,symFlag,diagFlag)
 %
 %     You should have received a copy of the GNU General Public License
 %     along with fbWecCntrl.  If not, see <https://www.gnu.org/licenses/>.
-%
 % -------------------------------------------------------------------------
 
 arguments
-    x (:,1) {mustBeReal}
-    nGains (1,1) {mustBeReal,mustBePositive}
-    nDof (1,1) {mustBeReal,mustBePositive}
-    w (:,1) {mustBeReal,mustBePositive}
+    x (:,1) {mustBeReal,mustBeFinite}
+    nGains (1,1) {mustBeReal,mustBePositive,mustBeFinite}
+    nDof (1,1) {mustBeReal,mustBePositive,mustBeFinite}
+    w (:,1) {mustBeReal,mustBePositive,mustBeFinite}
     symFlag (1,1) {mustBeNumericOrLogical}
     diagFlag (1,1) {mustBeNumericOrLogical}
 end

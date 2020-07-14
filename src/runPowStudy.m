@@ -43,9 +43,9 @@ function [powStudy,fh] = runPowStudy(f,Zi,Hex,S,motorSpecs,plotflag,opts)
 % -------------------------------------------------------------------------
 
 arguments
-    f (:,1) double {mustBeReal, mustBePositive, mustBeNonNan}
-    Zi (:,:,:) double {mustBeNonNan}
-    Hex (:,:) double {mustBeNonNan}
+    f (:,1) double {mustBeReal, mustBePositive, mustBeNonNan, mustBeFinite}
+    Zi (:,:,:) double {mustBeNonNan, mustBeFinite}
+    Hex (:,:) double {mustBeNonNan, mustBeFinite}
     S (1,1) struct
     motorSpecs(1,3) cell {checkSizes(f,Zi,Hex,motorSpecs)}
     plotflag (1,1) {mustBeNumericOrLogical} = 0 
