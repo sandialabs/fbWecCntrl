@@ -33,7 +33,160 @@ function teardownOnce(testcase)
 % Do nothing
 end
 
-%% Test Functions
+%% mimoPi
+
+function test_mimoPi_oneDof_P(testcase)
+
+nGains = 1;
+nDof = 1;
+w = [1; pi];
+symFlag = 0;
+diagFlag = 1;
+x = 12345;
+C = mimoPi(x,nGains,nDof,w,symFlag,diagFlag);
+wtmp = shiftdim(w,-2);
+expVal = 12345 - 1i * 0 ./ wtmp;
+verifyEqual(testcase,C,expVal)
+    
+end
+
+function test_mimoPi_oneDof_PI(testcase)
+
+nGains = 2;
+nDof = 1;
+w = [1; pi];
+symFlag = 0;
+diagFlag = 1;
+x = [12345; 6789];
+C = mimoPi(x,nGains,nDof,w,symFlag,diagFlag);
+wtmp = shiftdim(w,-2);
+expVal = 12345 - 1i * 6789 ./ wtmp;
+verifyEqual(testcase,C,expVal)
+    
+end
+
+function test_mimoPi_twoDof_P_diag(testcase)
+
+nGains = 1;
+nDof = 2;
+w = [1; pi];
+symFlag = 0;
+diagFlag = 1;
+x = [12345; 6789];
+C = mimoPi(x,nGains,nDof,w,symFlag,diagFlag);
+wtmp = shiftdim(w,-2);
+expVal = x .* eye(2) - 1i * 0 ./ wtmp;
+verifyEqual(testcase,C,expVal)
+    
+end
+
+function test_mimoPi_twoDof_PI_diag(testcase)
+
+nGains = 2;
+nDof = 2;
+w = [1; pi];
+symFlag = 0;
+diagFlag = 1;
+x = [12; 34; 56; 78];
+C = mimoPi(x,nGains,nDof,w,symFlag,diagFlag);
+wtmp = shiftdim(w,-2);
+expVal = (x(1:2) - 1i * x(3:4) ./ wtmp) .* eye(2);
+verifyEqual(testcase,C,expVal)
+    
+end
+
+function test_mimoPi_twoDof_P_diagSym(testcase)
+
+nGains = 1;
+nDof = 2;
+w = [1; pi];
+symFlag = 1;
+diagFlag = 1;
+x = 12345;
+C = mimoPi(x,nGains,nDof,w,symFlag,diagFlag);
+wtmp = shiftdim(w,-2);
+expVal = x .* eye(2) - 1i * 0 ./ wtmp;
+verifyEqual(testcase,C,expVal)
+    
+end
+
+function test_mimoPi_twoDof_PI_diagSym(testcase)
+
+nGains = 2;
+nDof = 2;
+w = [1; pi];
+symFlag = 1;
+diagFlag = 1;
+x = [12; 34];
+C = mimoPi(x,nGains,nDof,w,symFlag,diagFlag);
+wtmp = shiftdim(w,-2);
+expVal = (x(1) - 1i * x(2) ./ wtmp) .* eye(2);
+verifyEqual(testcase,C,expVal)
+    
+end
+
+function test_mimoPi_twoDof_P_sym(testcase)
+
+nGains = 1;
+nDof = 2;
+w = [1; pi];
+symFlag = 1;
+diagFlag = 0;
+x = [12345; 6789];
+C = mimoPi(x,nGains,nDof,w,symFlag,diagFlag);
+wtmp = shiftdim(w,-2);
+expVal = [x, flipud(x)] + 1i * 0 ./ wtmp;
+verifyEqual(testcase,C,expVal)
+    
+end
+
+function test_mimoPi_twoDof_PI_sym(testcase)
+
+nGains = 2;
+nDof = 2;
+w = [1; pi];
+symFlag = 1;
+diagFlag = 0;
+x = [12; 34; 56; 78];
+C = mimoPi(x,nGains,nDof,w,symFlag,diagFlag);
+wtmp = shiftdim(w,-2);
+tmp = x(1:2) - 1i * x(3:4) ./ wtmp;
+expVal = [tmp, flipud(tmp)];
+verifyEqual(testcase,C,expVal)
+    
+end
+
+function test_mimoPi_twoDof_P_full(testcase)
+
+nGains = 1;
+nDof = 2;
+w = [1; pi];
+symFlag = 0;
+diagFlag = 0;
+x = [12; 34; 56; 78];
+C = mimoPi(x,nGains,nDof,w,symFlag,diagFlag);
+wtmp = shiftdim(w,-2);
+expVal = reshape(x,[2,2]) - 1i * 0 ./ wtmp;
+verifyEqual(testcase,C,expVal)
+    
+end
+
+function test_mimoPi_twoDof_PI_full(testcase)
+
+nGains = 2;
+nDof = 2;
+w = [1; pi];
+symFlag = 0;
+diagFlag = 0;
+x = [1; 2; 3; 4; 5; 6; 7; 8];
+C = mimoPi(x,nGains,nDof,w,symFlag,diagFlag);
+wtmp = shiftdim(w,-2);
+expVal = reshape(x(1:4),[2,2]) - 1i * reshape(x(5:8),[2,2]) ./ wtmp;
+verifyEqual(testcase,C,expVal)
+    
+end
+
+%% WaveBot
 
 function test_waveBot_pow(testcase)
 % test_waveBot_pow  Check solution against known power
@@ -130,7 +283,6 @@ verifyEqual(testcase,powStudy(1).P,sum(powStudy(1).Pub_f),'RelTol',1e-10)
 
 end
 
-
 function test_waveBot_resonance(testcase)
 % test_waveBot_resonance    At resonance (f = 0.625 Hz), P should match PI
     
@@ -206,6 +358,9 @@ eval = [-1.995366605972993, -0.204457231177428,...
 verifyEqual(testcase,powStudy(1).x,eval,'RelTol',1e-3)
 
 end
+
+
+%% FOSWEC
 
 function test_foswec_SingleFreq(testcase)
 % test_foswec_SingleFreq    Ensure PI can reach optimal in monochromatic
