@@ -41,32 +41,37 @@ Kd = 0; % Drivetrain spring coefficient (between shaft and reference/ground)
 
 PTO_params.actual = [N, Id, Bd, Kd, Kt, Rw, Lw];
 
-% legCel = {...
-%     'CC on full sys.',...
-%     'PI on full sys.',...
-%     'CC on hydro',...
-%     'PI on hydro',...
-%     };
-
 options = optimoptions('fmincon','MaxFunctionEvaluations',1e6,'MaxIterations',1e6);
 
 %%
 
-Zpto = Gen_impedance(w,[0,1,1e-3,0]);
+Zpto = PTO_Impedance(w,[1, 0, 0, 0, 1, 1e-3, 0]); % [N, Id, Bd, Kd, Kt, Rw, Lw]
 
 % CC on hydro
+legCel{1} = 'CC on hydro';
 C{1} = conj(Zi);
 ZL{1} = Load_impedance(Zpto,C{1});
 
 % CC on full sys. (eq. 22), output matching condition only
+legCel{2} = 'CC on full sys.';
 C{2} = conj( squeeze(Zpto(2,2,:)) ...
     - squeeze(Zpto(1,2,:)) .* squeeze(Zpto(2,1,:)) ...
     ./ (squeeze(Zpto(1,1,:)) + Zi) );
 ZL{2} = C{2};
 
-% CC on perfect PTO
+% PI on hydro
+PTO_params.ideal = [1, 0, 0, 0, 1, 1e-3, 0];
+PTO_param_mask = zeros(size(PTO_params.ideal));
+% 
+% % generate an initial guess and bounds
+x0 = ones(1,2)*0.1;
 
 
+% P0 = co_optimize_oneDOF_PTO_power(x0, PTO_param_mask, PTO_params.ideal, w, Zi, Fe);
+% 
+coOpt_obj_fun = @(x) co_optimize_oneDOF_PTO_power(x, PTO_param_mask, PTO_params.ideal, w, Zi, Fe);
+options = optimoptions('fminunc','MaxFunctionEvaluations',1e6, 'MaxIterations', 1e6);
+[y,fval] = fminunc(coOpt_obj_fun, x0, options);
 
 Pmax = abs(Fe).^2 ./ (8*real(Zi));
 
@@ -78,10 +83,6 @@ for ii = 1:length(C)
 end
 
 
-legCel = {...
-    'CC on hydro',...
-    'CC on full sys.',...
-    };
 
 % for ii = 1:size(Pmech,2)
 %     legCel{ii} = sprintf('%s (mech: %.1f W, elec: %.1f W)',...
@@ -115,7 +116,7 @@ xlim([0.2, 1])
 
 ylabel('Efficiency [ ]')
 xlabel('Frequency [Hz]')
-exportgraphics(gcf,'codesign_freqPowerComp.pdf','ContentType','vector')
+% exportgraphics(gcf,'codesign_freqPowerComp.pdf','ContentType','vector')
 
 %% CC on full sys.
 
@@ -136,9 +137,9 @@ Z_L{3} = conj(Zi);
 
 %% PI on hydro
 
-coOpt_obj_fun = @(x) co_optimize_oneDOF_PTO_power(x, ...
+objFun = @(x) co_optimize_oneDOF_PTO_power(x, ...
     zeros(size(PTO_params)), PTO_params.perfect, w, Zi, Fe);
-y = fminunc(coOpt_obj_fun, zeros(2,1), options);
+y = fminunc(objFun, zeros(2,1), options);
 Z_L{4} = Load_impedance(w, y);
 
 %% all powers
