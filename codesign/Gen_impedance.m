@@ -3,7 +3,7 @@ function Zgen = Gen_impedance(w, genParams)
     Ir = genParams(1);      % rotor inertia
     Kt = genParams(2);      % torque coefficient
     Rw = genParams(3);      % winding resistance
-    Lw = genParams(3);      % winding inductance
+    Lw = genParams(4);      % winding inductance
     
     Zw = Rw + 1i*w(:)*Lw;   % winding impedance
     
