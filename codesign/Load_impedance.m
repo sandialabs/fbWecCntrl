@@ -1,8 +1,4 @@
-function ZL = Load_impedance(w, x, C)
-
-
-% can call the controller from here. at the momem we assume it is just a PI
-
-ZL = x(1) - 1i*x(2)./w(:);
-
-
+function [ZL] = Load_impedance(Zpto, C)
+    
+ZL = squeeze(Zpto(1,2,:)) .* squeeze(Zpto(2,1,:)) ./ ...
+    ( squeeze(Zpto(1,1,:)) - C ) - squeeze(Zpto(2,2,:));

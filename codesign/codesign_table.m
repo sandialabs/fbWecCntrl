@@ -1,12 +1,15 @@
 clear
 close all
 
+cf = 60;
+
 mf = load('waveBot_heaveModel.mat');
-Zi = mf.Zi_frf(60:end,1);
-Hex = mf.H_frf(60:end,1)*1e1;
-f = mf.f(60:end,1);
+Zi = mf.Zi_frf(cf:end,1);
+Hex = mf.H_frf(cf:end,1)*1e1;
+f = mf.f(cf:end,1);
 w = 2*pi*f;
 dw = w(2)-w(1);
+
 
 Hs = 0.125;
 Tp = 2;
@@ -15,6 +18,8 @@ gamma = 3.3;
 S = jonswap(w, [Hs, Tp, gamma]);    % Wave energy density spectrum
 A = sqrt(2*dw*S.S(:));              % wave amplitude spectrum
 Fe = A .* Hex(:);
+% Fe = ones(size(Fe))*max(Fe);
+Fe = sqrt(8*real(Zi))*1;
 
 N = 1;  % gear ratio
 Kt = sqrt(2/3); % Generator torque constant
@@ -36,26 +41,94 @@ Kd = 0; % Drivetrain spring coefficient (between shaft and reference/ground)
 
 PTO_params.actual = [N, Id, Bd, Kd, Kt, Rw, Lw];
 
+% legCel = {...
+%     'CC on full sys.',...
+%     'PI on full sys.',...
+%     'CC on hydro',...
+%     'PI on hydro',...
+%     };
+
+options = optimoptions('fmincon','MaxFunctionEvaluations',1e6,'MaxIterations',1e6);
+
+%%
+
+Zpto = Gen_impedance(w,[0,1,1e-3,0]);
+
+% CC on hydro
+C{1} = conj(Zi);
+ZL{1} = Load_impedance(Zpto,C{1});
+
+% CC on full sys. (eq. 22), output matching condition only
+C{2} = conj( squeeze(Zpto(2,2,:)) ...
+    - squeeze(Zpto(1,2,:)) .* squeeze(Zpto(2,1,:)) ...
+    ./ (squeeze(Zpto(1,1,:)) + Zi) );
+ZL{2} = C{2};
+
+% CC on perfect PTO
+
+
+
+Pmax = abs(Fe).^2 ./ (8*real(Zi));
+
+
+for ii = 1:length(C)
+    Zin{ii} = input_impedance(Zpto,ZL{ii});
+    Pmech(:,ii) = oneDof_mech_power(Zi, Zin{ii}, Fe);
+    [~,Pelec(:,ii)] = oneDof_PTO_power(ZL{ii},Zpto,Zi,Fe);
+end
+
+
 legCel = {...
-    'CC on full sys.',...
-    'PI on full sys.',...
     'CC on hydro',...
-    'PI on hydro',...
+    'CC on full sys.',...
     };
+
+% for ii = 1:size(Pmech,2)
+%     legCel{ii} = sprintf('%s (mech: %.1f W, elec: %.1f W)',...
+%         legCel{ii},sum(Pmech(:,ii)),sum(Pelec(:,ii)));
+% end
+
+fig = figure;
+fig.Position = fig.Position .* [1 1 1 0.5];
+% set(gca,'yscale','log')
+hold on
+grid on
+
+for ii = 1:length(C)
+    plt(1,ii) = plot(f,Pmech(:,ii),'--','LineWidth',1.5);
+end
+ax = gca; ax.ColorOrderIndex = 1;
+for ii = 1:length(C)
+    plt(2,ii) = plot(f,Pelec(:,ii),'-','LineWidth',1.5);
+end
+
+% plot(f,Pmax,'k:')
+
+% pd(1) = plot(0,0,'k--');
+% pd(2) = plot(0,0,'k-');
+% legend([pd(1),pd(2),plt(2,:)],['mech','elec', legCel(:)'])
+
+l1 = legend([plt(2,:)],[legCel(:)']);
+set(l1,'location','southwest')
+ylim([-5,1])
+xlim([0.2, 1])
+
+ylabel('Efficiency [ ]')
+xlabel('Frequency [Hz]')
+exportgraphics(gcf,'codesign_freqPowerComp.pdf','ContentType','vector')
 
 %% CC on full sys.
 
 Z_pto = PTO_Impedance(w, PTO_params.actual);
-Z_L{1} = conj( Z_pto(2,2,:) - Z_pto(1,2,:) .* Z_pto(2,1,:) ./ (Z_pto(1,1,:) + shiftdim(Zi,-2)) );
+Z_L{1} = conj( Z_pto(2,2,:) - Z_pto(1,2,:) .* Z_pto(2,1,:) ./ ...
+    (Z_pto(1,1,:) + shiftdim(Zi,-2)) );
 
 %% PI on full sys.
 
 objfun = @(x) co_optimize_oneDOF_PTO_power(x, zeros(size(PTO_params.actual)), ...
     PTO_params.actual, w, Zi, Fe);
-options = optimoptions('fmincon','MaxFunctionEvaluations',1e6, 'MaxIterations', 1e6);
 [y,fval] = fminunc(objfun, zeros(2,1), options);
-P(2) = fval;
-Z_L{2} = Load_impedance(w, y);
+Z_L{2} = Load_impedance(w, y, Z_pto);
 
 %% CC on hydro
 
@@ -63,8 +136,8 @@ Z_L{3} = conj(Zi);
 
 %% PI on hydro
 
-coOpt_obj_fun = @(x) co_optimize_oneDOF_PTO_power(x, zeros(size(PTO_params)), PTO_params.perfect, w, Zi, Fe);
-options = optimoptions('fminunc','MaxFunctionEvaluations',1e6, 'MaxIterations', 1e6);
+coOpt_obj_fun = @(x) co_optimize_oneDOF_PTO_power(x, ...
+    zeros(size(PTO_params)), PTO_params.perfect, w, Zi, Fe);
 y = fminunc(coOpt_obj_fun, zeros(2,1), options);
 Z_L{4} = Load_impedance(w, y);
 
