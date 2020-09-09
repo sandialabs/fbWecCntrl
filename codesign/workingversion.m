@@ -3,7 +3,7 @@
 % either the hydro-mechanical system (e.g., "CC on mech") or the electrical
 % system (e.g., "CC on elec") in a single sea state.
 
-clc
+% clc
 clear
 close all
 
@@ -130,46 +130,3 @@ for ii = 1:length(wc)
     legCel{ii} = wc(ii).leg;
 end
 legend(legCel)
-
-%% Functions
-
-function C = fbc(x,cinfo)
-    
-    switch cinfo.type
-        case 'PI'
-            C = x(1) - 1i*x(2)./cinfo.w(:);
-        case 'P'
-            C = x(1);
-        case 'CC'
-            C = conj(cinfo.Zi);
-        otherwise
-            error('Invalid value for ''cinfo.type''')
-    end
-end
-
-function [Pmech_tot, Pmech] = Pmech(ZL, Zpto, Zi, Fe)
-    
-    Zin = squeeze(Zpto(1,1,:)) ...
-        - ((squeeze(Zpto(1,2,:)) .* squeeze(Zpto(2,1,:))) ...
-        ./ (squeeze(Zpto(2,2,:)) + ZL));
-    
-    Pmech = 1/2 * abs( Fe ./ (Zi + Zin) ).^2 .* real(Zin);
-    
-    Pmech_tot = -1 * sum(Pmech);
-end
-
-function [Pelec_tot, Pelec] = Pelec(ZL, Zpto, Zi, Fe)
-    
-    Pelec = 0.5 *real(ZL) .* abs( ( squeeze(Zpto(2,1,:)) .* Fe(:)) ./ ...
-        ( (( squeeze(Zpto(1,1,:)) + Zi ) .* ( squeeze(Zpto(2,2,:)) + ZL )) ...
-        - squeeze(Zpto(1,2,:) .* Zpto(2,1,:)) ) ).^2;
-    
-    Pelec_tot = -1 * sum(Pelec);
-    
-end
-
-function [ZL] = Zi2ZL(Zpto, C)
-    
-    ZL = ((squeeze(Zpto(1,2,:)) .* squeeze(Zpto(2,1,:)) ./ ...
-        ( squeeze(Zpto(1,1,:)) - C )) - squeeze(Zpto(2,2,:)));
-end

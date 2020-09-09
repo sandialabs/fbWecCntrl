@@ -5,7 +5,7 @@
 
 clc
 clear
-close all
+% close all
 
 %% Load WEC device data
 
@@ -43,8 +43,10 @@ Pmax = abs(Fe).^2 ./ (8*real(Zi));
 
 for ii = 1:length(C)
     Zin{ii} = input_impedance(Zpto,ZL{ii});
-    Pmech(:,ii) = oneDof_mech_power(Zi, Zin{ii}, Fe);
-    [~,Pelec(:,ii)] = oneDof_PTO_power(ZL{ii},Zpto,Zi,Fe);
+
+    [~,Pmech_f(:,ii)] = Pmech(ZL{ii}, Zpto, Zi, Fe);
+    
+    [~,Pelec_f(:,ii)] = Pelec(ZL{ii}, Zpto, Zi, Fe);
 end
 
 %% Plot results
@@ -55,11 +57,11 @@ hold on
 grid on
 
 for ii = 1:length(C)
-    plt(1,ii) = plot(f,Pmech(:,ii),'--','LineWidth',1.5);
+    plt(1,ii) = plot(f,Pmech_f(:,ii),'--','LineWidth',1.5);
 end
 ax = gca; ax.ColorOrderIndex = 1;
 for ii = 1:length(C)
-    plt(2,ii) = plot(f,Pelec(:,ii),'-','LineWidth',1.5);
+    plt(2,ii) = plot(f,Pelec_f(:,ii),'-','LineWidth',1.5);
 end
 
 l1 = legend([plt(2,:)],[legCel(:)']);
