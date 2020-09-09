@@ -13,8 +13,8 @@ dw = w(2)-w(1);
 
 
 Hs = 0.125;
-Tp = 5;
-gamma = 1;
+Tp = 2;
+gamma = 3.3;
 
 S = jonswap(w, [Hs, Tp, gamma]);    % Wave energy density spectrum
 A = sqrt(2*dw*S.S(:));              % wave amplitude spectrum
@@ -29,7 +29,7 @@ Pmax = abs(Fe).^2 ./ (8*real(Zi));
 
 clc
 
-Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 0.1, 0]); % [N, Id, Bd, Kd, Kt, Rw, Lw]
+Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]); % [N, Id, Bd, Kd, Kt, Rw, Lw]
 
 
 %--------------------
@@ -66,16 +66,16 @@ wc(4).objfun = @(x) Pelec( Zi2ZL(Zpto,fbc(x,wc(4).cinfo)),...
 wc(4).ZL = Zi2ZL(Zpto,fbc(wc(4).y, wc(4).cinfo));
 
 %--------------------
-wc(5).leg = 'PI on elec';
-wc(5).cinfo.type = 'PI';
-
-wc(5).cinfo.w = w;
-wc(5).cinfo.x0 = ones(1,2);
-wc(5).objfun = @(x) Pelec( fbc(x,wc(5).cinfo),...
-    Zpto,...
-    Zi,Fe );
-[wc(5).y, wc(5).fval] = fminunc(wc(5).objfun, wc(5).cinfo.x0, options);
-wc(5).ZL = fbc(wc(5).y,wc(5).cinfo);
+% wc(5).leg = 'PI on elec direct';
+% wc(5).cinfo.type = 'PI';
+% 
+% wc(5).cinfo.w = w;
+% wc(5).cinfo.x0 = ones(1,2);
+% wc(5).objfun = @(x) Pelec( fbc(x,wc(5).cinfo),...
+%     Zpto,...
+%     Zi,Fe );
+% [wc(5).y, wc(5).fval] = fminunc(wc(5).objfun, wc(5).cinfo.x0, options);
+% wc(5).ZL = fbc(wc(5).y,wc(5).cinfo);
 
 for ii = 1:length(wc)
     
@@ -85,12 +85,8 @@ for ii = 1:length(wc)
     
     [Pelec_tot(ii), mPelec(:,ii)] = Pelec(wc(ii).ZL, Zpto, Zi, Fe);
     %     assert(-1*Pelec_tot(ii) < sum(Pmax),sprintf('''%s'' making more mechanical power than theoretical limit',wc(1).leg))
+    legCel{ii} = wc(ii).leg;
 end
-
--1 * sum(Pmax)
-Pmech_tot
-Pelec_tot
-
 
 figure
 hold on
@@ -99,6 +95,33 @@ plot(mPmech,'*')
 ax = gca;
 ax.ColorOrderIndex = 1;
 plot(mPelec,'o')
+
+
+eta_mech = Pmech_tot./(-1 * sum(Pmax));
+eta_elec = Pelec_tot./(-1 * sum(Pmax));
+
+-1 * sum(Pmax)
+Pmech_tot
+Pelec_tot
+
+
+T = table(-1*Pmech_tot(:)/1e3,eta_mech(:),-1*Pelec_tot(:)/1e3,eta_elec(:),...
+    'VariableNames',{'MechPow_kW','MechEfficiency','ElecPow_kW','ElecEffciency'},...
+    'RowNames',legCel);
+disp(T)
+
+clear input
+input.data = T{:,1:end};
+input.dataFormat = {'%.2g',};
+input.tableColumnAlignment = 'c';
+input.tableBorders = 0;
+input.makeCompleteLatexDocument = 0;
+input.tableRowLabels = T.Properties.RowNames;
+input.tableCaption = 'Text caption';
+input.tableLabel = 'tab:TestLabel';
+input.tableColLabels = T.Properties.VariableNames;
+latex = latexTable(input);
+
 
 % figure
 % hold on

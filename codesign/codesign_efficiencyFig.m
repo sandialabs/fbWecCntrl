@@ -1,8 +1,8 @@
 clear
 close all
 
-cf = 60;
 
+cf = 60;
 mf = load('waveBot_heaveModel.mat');
 Zi = mf.Zi_frf(cf:end,1);
 Hex = mf.H_frf(cf:end,1)*1e1;
@@ -14,12 +14,13 @@ Fe = sqrt(8*real(Zi))*1; % const. power excitation
 
 %%
 
-Zpto = PTO_Impedance(w,[1, 0, 0, 0, 1, 1e-3, 0]); % [N, Id, Bd, Kd, Kt, Rw, Lw]
+% Zpto = PTO_Impedance(w,[1, 0, 0, 0, 1, 1e-4, 0]); % [N, Id, Bd, Kd, Kt, Rw, Lw]
+Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]); % [N, Id, Bd, Kd, Kt, Rw, Lw]
 
 % CC on hydro
 legCel{1} = 'CC on hydro';
 C{1} = conj(Zi);
-ZL{1} = Load_impedance(Zpto,C{1});
+ZL{1} = Zi2ZL(Zpto,C{1});
 
 % CC on full sys. (eq. 22), output matching condition only
 legCel{2} = 'CC on full sys.';
@@ -28,9 +29,7 @@ C{2} = conj( squeeze(Zpto(2,2,:)) ...
     ./ (squeeze(Zpto(1,1,:)) + Zi) );
 ZL{2} = C{2};
 
-
 Pmax = abs(Fe).^2 ./ (8*real(Zi));
-
 
 for ii = 1:length(C)
     Zin{ii} = input_impedance(Zpto,ZL{ii});
@@ -38,11 +37,8 @@ for ii = 1:length(C)
     [~,Pelec(:,ii)] = oneDof_PTO_power(ZL{ii},Zpto,Zi,Fe);
 end
 
-
-
 fig = figure;
 fig.Position = fig.Position .* [1 1 1 0.5];
-% set(gca,'yscale','log')
 hold on
 grid on
 
