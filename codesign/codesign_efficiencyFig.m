@@ -19,8 +19,6 @@ dw = w(2)-w(1);
 
 Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]); % [N, Id, Bd, Kd, Kt, Rw, Lw]
 
-Pmax = abs(Fe).^2 ./ (8*real(Zi));
-
 %% Wave excitation
 
 Fe = sqrt(8*real(Zi))*1; % const. power excitation
@@ -40,6 +38,8 @@ C{2} = conj( squeeze(Zpto(2,2,:)) ...
 ZL{2} = C{2};
 
 %% Calculate power and efficiency
+
+Pmax = abs(Fe).^2 ./ (8*real(Zi));
 
 for ii = 1:length(C)
     Zin{ii} = input_impedance(Zpto,ZL{ii});
