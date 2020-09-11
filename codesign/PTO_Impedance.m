@@ -12,7 +12,6 @@ Kt = Gamma(5);
 Rw = Gamma(6);
 Lw = Gamma(7);
 
-
 Zd = Bd + 1i*(w(:)*Id - Kd./w(:));
 Zw = Rw + 1i*w(:)*Lw;
 
