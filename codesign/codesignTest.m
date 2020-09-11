@@ -46,7 +46,7 @@ end
 function test_PiWorseThanCc_Mech(testcase)
     
     optimOpts = optimoptions('fminunc',...
-    'MaxFunctionEvaluations',1e6, 'MaxIterations', 1e6, 'Display', 'off');
+        'MaxFunctionEvaluations',1e6, 'MaxIterations', 1e6, 'Display', 'off');
     
     cf = 60;
     mf = load('waveBot_heaveModel.mat');
@@ -84,7 +84,7 @@ end
 function test_PiWorseThanCc_Elec(testcase)
     
     optimOpts = optimoptions('fminunc',...
-    'MaxFunctionEvaluations',1e6, 'MaxIterations', 1e6, 'Display', 'off');
+        'MaxFunctionEvaluations',1e6, 'MaxIterations', 1e6, 'Display', 'off');
     
     cf = 60;
     mf = load('waveBot_heaveModel.mat');
@@ -102,11 +102,11 @@ function test_PiWorseThanCc_Elec(testcase)
     wc(1).ZL = conj( squeeze(Zpto(2,2,:)) ...
         - squeeze(Zpto(1,2,:)) .* squeeze(Zpto(2,1,:)) ...
         ./ (squeeze(Zpto(1,1,:)) + Zi) );
-
+    
     %---------------------------------
     wc(2).leg = 'PI on elec';
     wc(2).cinfo.type = 'PI';
-
+    
     wc(2).cinfo.w = w;
     wc(2).cinfo.x0 = ones(1,2);
     wc(2).objfun = @(x) Pelec( Zi2ZL(Zpto,fbc(x,wc(2).cinfo)),...
