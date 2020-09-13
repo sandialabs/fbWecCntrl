@@ -34,6 +34,9 @@ end
 Fe(:,4) = sqrt(8*real(Zi))*1; % const. power excitation
 Fe_name{4} = 'constPowerExc';
 
+Fe(:,5) = ones(size(Fe(:,1)))*mean(Fe(:,1));
+Fe_name{5} = 'constFe';
+
 %% Design controllers
 
 % CC on hydro
