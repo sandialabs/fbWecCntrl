@@ -70,7 +70,7 @@ for jj = 1:size(Fe,2)
         [~,Pelec_f(:,ii)] = Pelec(ZL{ii}, Zpto, Zi, Fe(:,jj));
     end
     
-    %% Plot results
+    %% Plot efficiency
     
     fig(1) = figure('name',sprintf('powerEfficiency_%s',Fe_name{jj}));
     fig(1).Position = fig(1).Position .* [1 1 1 0.5];
@@ -126,6 +126,51 @@ for jj = 1:size(Fe,2)
     xlim([0.2, 1])
     
     fname = sprintf('codesign_velForceOverdesign_%s.pdf',Fe_name{jj});
+    exportgraphics(gcf,fname,'ContentType','vector')
+    
+    %%
+    
+    fig(3) = figure('name',sprintf('impedances_%s',Fe_name{jj}));
+    fig(3).Position = fig(3).Position .* [1 1 1 0.75];
+    hold on
+    for ii = 1:length(C)
+        sys(ii) = frd(Zi + Zin(:,ii),w);
+    end
+    sys(length(C)+1) = frd(2*real(Zi),w);
+    h = bodeplot(sys(1),sys(2),sys(3));
+    setoptions(h,'FreqUnits','Hz');
+    setoptions(h,'Grid','on');
+    setoptions(h,'IOGrouping','all');
+    legend(legCel{:},'2*R_i')
+    xlim([0.2, 1])
+    
+    %% Plot power
+    
+    fig(4) = figure('name',sprintf('power_%s',Fe_name{jj}));
+    fig(4).Position = fig(4).Position .* [1 1 1 0.5];
+    hold on
+    grid on
+    
+    clear plt
+    for ii = 1:length(C)
+        plt(1,ii) = plot(f,Pmech_f(:,ii),'--','LineWidth',1.5);
+    end
+    ax = gca; ax.ColorOrderIndex = 1;
+    for ii = 1:length(C)
+        plt(2,ii) = plot(f,Pelec_f(:,ii),'-','LineWidth',1.5);
+    end
+    
+    if jj == 1
+        l1 = legend([plt(2,:)],[legCel(:)']);
+    end
+    set(l1,'location','northwest')
+%     ylim([-5,1])
+    xlim([0.2, 1])
+    
+    ylabel('Power [W]')
+    xlabel('Frequency [Hz]')
+    
+    fname = sprintf('codesign_power_%s.pdf',Fe_name{jj});
     exportgraphics(gcf,fname,'ContentType','vector')
     
 end
