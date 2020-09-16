@@ -323,7 +323,7 @@ function test_waveBot_surgePitch(testcase)
 % Known gains established from early version of fbWecCntrl and previous
 % MASK data analysis
 
-Zi = struct2array(load('Wavebot_Zi_v_enc_to_F_des_MIMO.mat'));
+Zi = struct2array(load('waveBot_MIMO.mat'));
 WEC = struct2array(load('WEC_T3R2.mat'));
 
 Hm0 = 15*2.54e-2;
