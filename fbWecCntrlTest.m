@@ -29,7 +29,7 @@ import matlab.unittest.fixtures.SuppressedWarningsFixture
 testcase.applyFixture(SuppressedWarningsFixture('WAFO:MKJONSWAP'));
 end
 
-function teardownOnce(testcase)
+function teardownOnce(~)
 % Do nothing
 end
 
@@ -193,7 +193,7 @@ function test_waveBot_pow(testcase)
 %
 % Known power established from early version of fbWecCntrl
 
-Hm0 = [0.127];
+Hm0 = 0.127;
 Tp = 1.6;
 gamma = 1.0;
 mf = matfile('WaveBot_heaveModel.mat');
@@ -222,7 +222,7 @@ function test_waveBot_gains(testcase)
 % Known gains established from early version of fbWecCntrl and from
 % previous MASK data analysis
 
-Hm0 = [0.127];
+Hm0 = 0.127;
 Tp = [1.6, 2.5, 3.5];
 gamma = 1.0;
 mf = matfile('WaveBot_heaveModel.mat');
@@ -255,10 +255,9 @@ function test_waveBot_mono(testcase)
 
 T = 2.5;
 amp = 0.1;
-H = amp*2;
 
-Hm0 = [0.127];
-Tp = [1.6];
+Hm0 = 0.127;
+Tp = 1.6;
 gamma = 1.0;
 mf = matfile('WaveBot_heaveModel.mat');
 f = mf.f;               % frequency vector
@@ -266,7 +265,7 @@ Zi = shiftdim(mf.Zi_frf,-2);
 Hex = transpose(mf.H_frf);
 
 Kt = 6.1745;    % WaveBot motor torque constant
-R = 0.5;        % WaveBot motor electrical winding resistance
+R = 0.5*0;      % WaveBot motor electrical winding resistance
 N = 12.4666;    % WaveBot heave gear ratio
 
 % Create wave spectrum
@@ -277,7 +276,7 @@ Spect1.S = 0*Spect.S;
 Spect1.w = Spect.w;
 dw = Spect.w(2) - Spect.w(1);
 Spect1.S(ind) = amp^2/(2*dw);
-[powStudy] = runPowStudy(f,Zi,Hex,Spect1,{Kt,0,N},0);
+[powStudy] = runPowStudy(f,Zi,Hex,Spect1,{Kt,R,N},0);
 
 verifyEqual(testcase,powStudy(1).P,sum(powStudy(1).Pub_f),'RelTol',1e-10)
 
@@ -288,10 +287,9 @@ function test_waveBot_resonance(testcase)
     
 T = 1/0.625;
 amp = 0.1;
-H = amp*2;
 
-Hm0 = [0.127];
-Tp = [1.6];
+Hm0 = 0.127;
+Tp = 1.6;
 gamma = 1.0;
 mf = matfile('WaveBot_heaveModel.mat');
 f = mf.f;               % frequency vector
@@ -330,10 +328,8 @@ Hm0 = 15*2.54e-2;
 Tp = 3.5;
 gamma = 1;
 
-df = 0.01;
 f = 0.2:0.01:1; % frequency vector
 w = 2*pi*f;
-dw = 2*pi*df;
 
 Kt = 6.1745 * eye(2);
 R = diag([0.5,  0.5]);
