@@ -205,7 +205,7 @@ function test_Resoance_PAsGoodAsCC(testcase)
 end
 
 function test_OneDOF_coDesign(testcase)
-    prev = load('./OneDOF_coDesign.mat','y');
+    prev = load('OneDOF_coDesign.mat','y');
     evalc('OneDOF_coDesign'); close all
     verifyEqual(testcase, y, prev.y,'RelTol',1e-12,...
         'OneDOF_coDesign.mlx results don''t match previous')
