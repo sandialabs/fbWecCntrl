@@ -17,7 +17,7 @@ f = mf.f(cf:end,1);
 w = 2*pi*f;
 dw = w(2)-w(1);
 
-Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]); % [N, Id, Bd, Kd, Kt, Rw, Lw]
+Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w); % [N, Id, Bd, Kd, Kt, Rw, Lw]
 
 %% Wave excitation
 

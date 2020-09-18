@@ -17,7 +17,7 @@ end
 function test_GenVsPtoImpedance(testcase)
     w = [1,2,3];
     Zgen = Gen_impedance(w,[0,1,1e-3,0]); % [Ir, Kt, Rw, Lw]
-    Zpto = PTO_Impedance(w,[1, 0, 0, 0, 1, 1e-3, 0]); % [N, Id, Bd, Kd, Kt, Rw, Lw]
+    Zpto = PTO_Impedance([1, 0, 0, 0, 1, 1e-3, 0],w); % [N, Id, Bd, Kd, Kt, Rw, Lw]
     verifyEqual(testcase,Zgen,Zpto)
 end
 
@@ -30,7 +30,7 @@ function test_PowerLimit(testcase)
     w = 2*pi*f;
     dw = w(2)-w(1);
     
-    Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]);
+    Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w);
     Fe = sqrt(8*real(Zi))*1; % const. power excitation
     
     Pmax = abs(Fe).^2 ./ (8*real(Zi));
@@ -56,7 +56,7 @@ function test_PiWorseThanCc_Mech(testcase)
     w = 2*pi*f;
     dw = w(2)-w(1);
     
-    Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]);
+    Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w);
     Fe = sqrt(8*real(Zi))*1; % const. power excitation
     
     %---------------------------------
@@ -94,7 +94,7 @@ function test_PiWorseThanCc_Elec(testcase)
     w = 2*pi*f;
     dw = w(2)-w(1);
     
-    Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]);
+    Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w);
     Fe = sqrt(8*real(Zi))*1; % const. power excitation
     
     %---------------------------------
@@ -136,7 +136,7 @@ function test_Mono_PiAsGoodAsCC(testcase)
     w = 2*pi*f;
     dw = w(2)-w(1);
     
-    Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]);
+    Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w);
     Fe = zeros(size(Zi));
     Fe(150) = sqrt(8*real(Zi(150)))*1; % const. power excitation
     
@@ -176,7 +176,7 @@ function test_Resoance_PAsGoodAsCC(testcase)
     w = 2*pi*f;
     dw = w(2)-w(1);
     
-    Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]);
+    Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w);
     Fe = zeros(size(Zi));
     [~,idx] = min(abs(imag(Zi)));
     Fe(idx) = sqrt(8*real(Zi(150)))*1; % const. power excitation

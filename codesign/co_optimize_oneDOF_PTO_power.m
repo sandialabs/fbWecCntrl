@@ -9,7 +9,7 @@ function [P, P_f, Z_L, Z_PTO, C] = co_optimize_oneDOF_PTO_power(x, PTO_param_opt
         PTO_params(PTO_param_opt_mask) = x(1:n_PTO_var);
     end
     
-    Z_PTO = PTO_Impedance(w, PTO_params);
+    Z_PTO = PTO_Impedance(PTO_params,w);
     
     % Load impedance ------------------------------------------------------
     switch Cfunc
