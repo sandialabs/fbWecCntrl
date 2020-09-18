@@ -1,8 +1,5 @@
-% Example in section IV-B1
-% Co-optimization of PTO parameters and control. Control system is
-% colocated wth load impedance (i.e. C = Z_L)
-
-
+% section bla bla bla
+% load WEC intrinsic impedance model
 clear
 close all
 
@@ -67,7 +64,7 @@ Lw_bnds = [ 3, 4 ];
 % Drivetrain total moment of inertia (including generator's rotor)
 Id = 2;
 Id_opt_flag = false;
-Id_bnds = [ 5, 20 ];
+Id_bnds = [ 0.001, 20 ];
 % Drivetrain friction
 Bd = 1;
 Bd_opt_flag = false;
@@ -94,7 +91,7 @@ out_var_no_coopt = co_optimize_PTO(Fe, Zi, PTO_cfg, w);
 
 N_opt_flag = true;
 Id_opt_flag = true;
-Kd_opt_flag = true;
+Kd_opt_flag = false;
 PTO_cfg.PTO_param_mask = [N_opt_flag, Id_opt_flag, Bd_opt_flag, Kd_opt_flag, Kt_opt_flag, Rw_opt_flag, Lw_opt_flag];
 
 out_var_coopt = co_optimize_PTO(Fe, Zi, PTO_cfg, w);
@@ -268,15 +265,12 @@ P = -sum(P_f);
 
 end
 
-function ZL = Load_impedance(x, ~, w)
+function ZL = Load_impedance(~, ~, ~)
+% Fixed load impeance (resistance)
 
-ZL = PI_cntrl(x, w);
-
-end
-
-function C = PI_cntrl(x, w)
-
-C = x(1) - 1i*x(2)./w(:);
+ZL = 10;
 
 end
+
+
 

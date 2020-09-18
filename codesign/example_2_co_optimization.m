@@ -1,8 +1,5 @@
-% Example in section IV-B1
-% Co-optimization of PTO parameters and control. Control system is
-% colocated wth load impedance (i.e. C = Z_L)
-
-
+% section bla bla bla
+% load WEC intrinsic impedance model
 clear
 close all
 
@@ -90,7 +87,7 @@ out_var_no_coopt = co_optimize_PTO(Fe, Zi, PTO_cfg, w);
 
 
 
-%% co-optimization 
+%% co-optimization
 
 N_opt_flag = true;
 Id_opt_flag = true;
@@ -138,7 +135,7 @@ f = w/2/pi;
 Ri = real(Zi);
 
 % generate an initial guess
-x0 = [ones(1,sum(PTO_cfg.PTO_param_mask)), zeros(1,2)];
+x0 = [ones(1,sum(PTO_cfg.PTO_param_mask)), .01+zeros(1,2)];
 
 % P0 = co_optimize_oneDOF_PTO_power(x0, PTO_param_mask, PTO_param, w, Zi, Fe);
 
@@ -200,7 +197,7 @@ out_var.T = table([PTO_cfg.PTO_param_lb(PTO_cfg.PTO_param_mask),nan(1,2)]',...
 
 % fprintf('Optimal parameters\n')
 % disp(T)
-% 
+%
 % fprintf('Max theoretical Mechanical power [w]:\t%.2e\n',Pm_ub_tot)
 % fprintf('Max theoretical Electrical power [w]:\t%.2e\n',Pe_ub_tot)
 % fprintf('Total Electrical power [w]:\t\t%.2e\n',-1*P_tot)
@@ -268,15 +265,32 @@ P = -sum(P_f);
 
 end
 
-function ZL = Load_impedance(x, ~, w)
+function ZL = Load_impedance(x, PTO_params, w)
 
-ZL = PI_cntrl(x, w);
+% can call the controller from here. at the momem we assume it is just a PI
+
+
+% Nfreq = length(w);
+
+% Z_mat = zeros(2,2,Nfreq);
+
+% N = Gamma(1);
+% Id = Gamma(2);
+% Bd = Gamma(3);
+% Kd = Gamma(4);
+Kt = PTO_params(5);
+Rw = PTO_params(6);
+Lw = PTO_params(7);
+
+% Zd = Bd + 1i*(w(:)*Id - Kd./w(:));
+Zw = Rw + 1i*w(:)*Lw;
+
+ZL = Zw + 3 * Kt / 2 ./ PI_cntrl(x, w);
+
 
 end
 
 function C = PI_cntrl(x, w)
-
 C = x(1) - 1i*x(2)./w(:);
-
 end
 

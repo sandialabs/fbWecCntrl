@@ -1,8 +1,6 @@
-% Example in section IV-B1
-% Co-optimization of PTO parameters and control. Control system is
-% colocated wth load impedance (i.e. C = Z_L)
-
-
+% section bla bla bla
+% load WEC intrinsic impedance model
+clc
 clear
 close all
 
@@ -19,7 +17,7 @@ Xi = imag(Zi);  % intrinsic reactance
 
 % Sea state selection
 % We must define a sea state on which perform the analysis
-Tp = 3.5; % Wave Period (Peak period for Jonswap)
+Tp = 2.5; % Wave Period (Peak period for Jonswap)
 Hs = 6; % wave Height
 Gamma  = 3.3; % peakiness factor (for Jonswap)
 
@@ -57,7 +55,7 @@ Kt = 6.7;
 Kt_opt_flag = false;
 Kt_bnds = [ 3, 4 ];
 % Generator winding resistance
-Rw = 0.1;
+Rw = 0.001;
 Rw_opt_flag = false;
 Rw_bnds = [ 3, 4 ];
 % Generator winding inductance
@@ -89,13 +87,17 @@ PTO_cfg.PTO_param = [N, Id, Bd, Kd, Kt, Rw, Lw];
 out_var_no_coopt = co_optimize_PTO(Fe, Zi, PTO_cfg, w);
 
 
-
 %% co-optimization 
+
+% Generator winding resistance
+Rw = 0.1;
 
 N_opt_flag = true;
 Id_opt_flag = true;
-Kd_opt_flag = true;
+Kd_opt_flag = false;
+
 PTO_cfg.PTO_param_mask = [N_opt_flag, Id_opt_flag, Bd_opt_flag, Kd_opt_flag, Kt_opt_flag, Rw_opt_flag, Lw_opt_flag];
+PTO_cfg.PTO_param = [N, Id, Bd, Kd, Kt, Rw, Lw];
 
 out_var_coopt = co_optimize_PTO(Fe, Zi, PTO_cfg, w);
 
@@ -279,4 +281,7 @@ function C = PI_cntrl(x, w)
 C = x(1) - 1i*x(2)./w(:);
 
 end
+
+
+
 
