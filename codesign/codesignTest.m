@@ -17,11 +17,13 @@ end
 function test_GenVsPtoImpedance(testcase)
     w = [1,2,3];
     Zgen = Gen_impedance(w,[0,1,1e-3,0]); % [Ir, Kt, Rw, Lw]
-    Zpto = PTO_Impedance(w,[1, 0, 0, 0, 1, 1e-3, 0]); % [N, Id, Bd, Kd, Kt, Rw, Lw]
+    Zpto = PTO_Impedance([1, 0, 0, 0, 1, 1e-3, 0],w); % [N, Id, Bd, Kd, Kt, Rw, Lw]
     verifyEqual(testcase,Zgen,Zpto)
 end
 
 function test_PowerLimit(testcase)
+    % CC matches theoretical limit of mechanical power
+    
     cf = 60;
     mf = load('waveBot_heaveModel.mat');
     Zi = mf.Zi_frf(cf:end,1);
@@ -30,7 +32,7 @@ function test_PowerLimit(testcase)
     w = 2*pi*f;
     dw = w(2)-w(1);
     
-    Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]);
+    Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w);
     Fe = sqrt(8*real(Zi))*1; % const. power excitation
     
     Pmax = abs(Fe).^2 ./ (8*real(Zi));
@@ -44,6 +46,7 @@ function test_PowerLimit(testcase)
 end
 
 function test_PiWorseThanCc_Mech(testcase)
+    % PI worse than theoretical limit in sea state, mechanical power
     
     optimOpts = optimoptions('fminunc',...
         'MaxFunctionEvaluations',1e6, 'MaxIterations', 1e6, 'Display', 'off');
@@ -56,7 +59,7 @@ function test_PiWorseThanCc_Mech(testcase)
     w = 2*pi*f;
     dw = w(2)-w(1);
     
-    Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]);
+    Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w);
     Fe = sqrt(8*real(Zi))*1; % const. power excitation
     
     %---------------------------------
@@ -82,6 +85,7 @@ function test_PiWorseThanCc_Mech(testcase)
 end
 
 function test_PiWorseThanCc_Elec(testcase)
+    % PI worse than theoretical limit in sea state, electical power
     
     optimOpts = optimoptions('fminunc',...
         'MaxFunctionEvaluations',1e6, 'MaxIterations', 1e6, 'Display', 'off');
@@ -94,7 +98,7 @@ function test_PiWorseThanCc_Elec(testcase)
     w = 2*pi*f;
     dw = w(2)-w(1);
     
-    Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]);
+    Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w);
     Fe = sqrt(8*real(Zi))*1; % const. power excitation
     
     %---------------------------------
@@ -124,6 +128,7 @@ function test_PiWorseThanCc_Elec(testcase)
 end
 
 function test_Mono_PiAsGoodAsCC(testcase)
+    % PI controller matches theoretical limit in monochromatic wave
     
     optimOpts = optimoptions('fminunc',...
         'MaxFunctionEvaluations',1e6, 'MaxIterations', 1e6, 'Display', 'off');
@@ -136,7 +141,7 @@ function test_Mono_PiAsGoodAsCC(testcase)
     w = 2*pi*f;
     dw = w(2)-w(1);
     
-    Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]);
+    Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w);
     Fe = zeros(size(Zi));
     Fe(150) = sqrt(8*real(Zi(150)))*1; % const. power excitation
     
@@ -164,6 +169,7 @@ function test_Mono_PiAsGoodAsCC(testcase)
 end
 
 function test_Resoance_PAsGoodAsCC(testcase)
+    % P controller matches theoretical limit at resonance
     
     optimOpts = optimoptions('fminunc',...
         'MaxFunctionEvaluations',1e6, 'MaxIterations', 1e6, 'Display', 'off');
@@ -176,7 +182,7 @@ function test_Resoance_PAsGoodAsCC(testcase)
     w = 2*pi*f;
     dw = w(2)-w(1);
     
-    Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]);
+    Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w);
     Fe = zeros(size(Zi));
     [~,idx] = min(abs(imag(Zi)));
     Fe(idx) = sqrt(8*real(Zi(150)))*1; % const. power excitation
@@ -205,8 +211,36 @@ function test_Resoance_PAsGoodAsCC(testcase)
 end
 
 function test_OneDOF_coDesign(testcase)
+    % compare w. previous results from 'OneDOF_coDesign.mlx'
+    
     prev = load('OneDOF_coDesign.mat','y');
     evalc('OneDOF_coDesign'); close all
     verifyEqual(testcase, y, prev.y,'RelTol',1e-12,...
         'OneDOF_coDesign.mlx results don''t match previous')
+end
+
+function test_codesign_powerTable(testcase)
+    % compare w. previous results from 'codesign_powerTable.m'
+    
+    evalc('codesign_powerTable'); close all;
+    prev = load('codesign_powerTable.mat');
+    verifyEqual(testcase, mPmech, prev.mPmech,'RelTol',1e-12,...
+        'codesign_powerTable.m: mPmech results don''t match previous')
+    verifyEqual(testcase, mPelec, prev.mPelec,'RelTol',1e-12,...
+        'codesign_powerTable.m: mPelec results don''t match previous')
+    verifyEqual(testcase, Pmax, prev.Pmax,'RelTol',1e-12,...
+        'codesign_powerTable.m: mPelec results don''t match previous')
+end
+
+function test_codesign_efficiencyFig(testcase)
+    % compare w. previous results from 'codesign_efficiencyFig.m'
+
+    evalc('codesign_efficiencyFig'); close all;
+    prev = load('codesign_efficiencyFig.mat');
+    verifyEqual(testcase, Pelec_f, prev.Pelec_f,'RelTol',1e-12,...
+        'codesign_powerTable.m: Pelec_f results don''t match previous')
+    verifyEqual(testcase, Pmech_f, prev.Pmech_f,'RelTol',1e-12,...
+        'codesign_powerTable.m: Pmech_f results don''t match previous')
+    verifyEqual(testcase, Pmax, prev.Pmax,'RelTol',1e-12,...
+        'codesign_powerTable.m: Pmax results don''t match previous')
 end

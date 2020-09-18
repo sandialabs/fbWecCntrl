@@ -4,10 +4,10 @@
 % system (e.g., "CC on elec") in a single sea state.
 
 % clc
-clear
-close all
+% clear
+% close all
 
-
+% plotflag = 1;
 
 %% Load WEC device data
 
@@ -19,7 +19,7 @@ f = mf.f(cf:end,1);
 w = 2*pi*f;
 dw = w(2)-w(1);
 
-Zpto = PTO_Impedance(w,[1, 0, 0, 0, sqrt(2/3), 1e-3, 0]); % [N, Id, Bd, Kd, Kt, Rw, Lw]
+Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w); % [N, Id, Bd, Kd, Kt, Rw, Lw]
 
 %% Define sea state and excitation
 
@@ -53,7 +53,8 @@ end
 %% Design controllers
 
 for ii = 1:size(Fe,2)
-    T{ii} = myfunc(Fe(:,ii),Zi,Zpto,w);
+    fprintf('\n\n%s\n------------------------\n',Fe_name{ii})
+    [T{ii},Pmax(:,ii),mPmech(:,:,ii),mPelec(:,:,ii)] = myfunc(Fe(:,ii),Zi,Zpto,w);
     vn = T{ii}.Properties.VariableNames;
     for jj = 1:length(vn)
         vn{jj} = sprintf('%s_%.2f',vn{jj},Tp(ii));
@@ -61,7 +62,51 @@ for ii = 1:size(Fe,2)
     T{ii}.Properties.VariableNames = vn;
 end
 
-function T = myfunc(Fe,Zi,Zpto,w)
+%% Plotting
+
+nf = max(Pmax);
+fa = 0.125;
+
+fig = figure;
+fig.Position = fig.Position .* [1 1 1 0.75];
+
+t = tiledlayout(2,1);
+t.TileSpacing = 'compact';
+
+ax(1) = nexttile;
+hold on
+grid on
+
+for ii = 1:size(Pmax,2)
+    plt.pm(ii) = area(ax(1), f, Pmax(:,ii) / nf(ii), 'facealpha', fa);
+end
+
+ax(2) = nexttile;
+hold on
+grid on
+
+for ii = 1:size(Pmax,2)
+    plt.pi(ii) = plot(ax(2), f, mPelec(:,4,ii) ./ mPelec(:,3,ii),...
+        'LineWidth',1.5);
+    lgs{ii} = sprintf('$T_p = %.2fs$',Tp(ii));
+end
+
+ylabel(ax(1),'Norm. $P^{max}_m$ [ ]','interpreter','latex')
+
+legend(ax(1),lgs,'interpreter','latex')
+ylabel(ax(2),'$P^\prime_L$ [ ]','interpreter','latex')
+xlabel(ax(2),'Frequency [Hz]','interpreter','latex')
+% set(ax(2),'yscale','log')
+
+linkaxes(ax,'x')
+set(ax(1),'xticklabel',[])
+xlim([0.2, 1])
+
+exportgraphics(fig,'codesign_powerRatio.pdf','ContentType','vector')
+
+%% Inline function
+
+function [T,Pmax,mPmech,mPelec] = myfunc(Fe,Zi,Zpto,w)
     
     optimOpts = optimoptions('fminunc',...
         'MaxFunctionEvaluations',1e6, 'MaxIterations', 1e6, 'Display', 'off');
