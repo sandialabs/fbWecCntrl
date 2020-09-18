@@ -4,8 +4,10 @@
 % system (e.g., "CC on elec") in a single sea state.
 
 % clc
-clear
-close all
+% clear
+% close all
+
+% plotflag = 1;
 
 %% Load WEC device data
 

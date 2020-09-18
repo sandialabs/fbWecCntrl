@@ -3,9 +3,11 @@
 % designed based on either the hydro-mechanical system (e.g., "CC on mech")
 % or the electrical system (e.g., "CC on elec").
 
-clc
-clear
+% clc
+% clear
 % close all
+
+savefigflag = 0;
 
 %% Load WEC device data
 
@@ -93,8 +95,10 @@ for jj = 1:size(Fe,2)
     ylabel('Efficiency [ ]')
     xlabel('Frequency [Hz]')
     
-    fname = sprintf('codesign_powerEfficiency_%s.pdf',Fe_name{jj});
-    exportgraphics(gcf,fname,'ContentType','vector')
+    if savefigflag
+        fname = sprintf('codesign_powerEfficiency_%s.pdf',Fe_name{jj});
+        exportgraphics(gcf,fname,'ContentType','vector')
+    end
     
     %%
     
@@ -125,8 +129,10 @@ for jj = 1:size(Fe,2)
     linkaxes(ax,'x')
     xlim([0.2, 1])
     
-    fname = sprintf('codesign_velForceOverdesign_%s.pdf',Fe_name{jj});
-    exportgraphics(gcf,fname,'ContentType','vector')
+    if savefigflag
+        fname = sprintf('codesign_velForceOverdesign_%s.pdf',Fe_name{jj});
+        exportgraphics(gcf,fname,'ContentType','vector')
+    end
     
     %%
     
@@ -170,8 +176,10 @@ for jj = 1:size(Fe,2)
     ylabel('Power [W]')
     xlabel('Frequency [Hz]')
     
-    fname = sprintf('codesign_power_%s.pdf',Fe_name{jj});
-    exportgraphics(gcf,fname,'ContentType','vector')
+    if savefigflag
+        fname = sprintf('codesign_power_%s.pdf',Fe_name{jj});
+        exportgraphics(gcf,fname,'ContentType','vector')
+    end
     
 end
 
