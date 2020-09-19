@@ -37,15 +37,6 @@ Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w); % [N, Id, Bd, Kd, Kt, 
 
 %% Define sea state and excitation
 
-% Hs = 0.125;
-% Tp = 2;
-% gamma = 3.3;
-%
-% S = jonswap(w, [Hs, Tp, gamma]);    % Wave energy density spectrum
-% A = sqrt(2*dw*S.S(:));              % wave amplitude spectrum
-% Fe = A .* Hex(:);
-
-
 Hs = 0.125;
 gamma = 3.3;
 Tp = [1.58, 2.5, 3.5];
@@ -55,14 +46,6 @@ for ii = 1:length(Tp)
     Fe(:,ii) = A .* Hex(:);
     Fe_name{ii} = sprintf('Tp%.2f',Tp(ii));
 end
-
-% Fe(:,4) = sqrt(8*real(Zi))*1; % const. power excitation
-% Fe_name{4} = 'constPowerExc';
-% 
-% Fe(:,5) = ones(size(Fe(:,1)))*mean(Fe(:,1));
-% Fe_name{5} = 'constFe';
-
-
 
 %% Design controllers
 
@@ -189,37 +172,3 @@ function [T,Pmax,mPmech,mPelec] = myfunc(Fe,Zi,Zpto,w)
     disp(T)
     
 end
-
-% clear input
-% input.data = T{:,1:end};
-% input.dataFormat = {'%.2g',};
-% input.tableColumnAlignment = 'c';
-% input.tableBorders = 0;
-% input.makeCompleteLatexDocument = 0;
-% input.tableRowLabels = T.Properties.RowNames;
-% input.tableCaption = 'Text caption';
-% input.tableLabel = 'tab:TestLabel';
-% input.tableColLabels = T.Properties.VariableNames;
-% latex = latexTable(input);
-%
-% %% Plot results
-%
-% figure('name','Frequency dependent power')
-% hold on
-% grid on
-% plot(mPmech,'-')
-% ax = gca;
-% ax.ColorOrderIndex = 1;
-% plot(mPelec,'--')
-%
-% figure('name','Bode plot')
-% hold on
-% grid on
-% opt = bodeoptions;
-% opt.FreqUnits = 'Hz';
-% opt.Grid = 'on';
-% for ii = 1:length(wc)
-%     bodeplot(frd(wc(ii).ZL,w),opt)
-%     legCel{ii} = wc(ii).leg;
-% end
-% legend(legCel)
