@@ -39,10 +39,9 @@ function test_PowerLimit(testcase)
     
     C = conj(Zi);
     ZL = Zi2ZL(Zpto,C);
-    Zin = input_impedance(Zpto,ZL);
-    Pmech = oneDof_mech_power(Zi, Zin, Fe);
+    [~, mPmech] = Pmech(ZL, Zpto, Zi, Fe);
     
-    verifyEqual(testcase,Pmech,Pmax,'RelTol',1e-10)
+    verifyEqual(testcase,mPmech,Pmax,'RelTol',1e-10)
 end
 
 function test_PiWorseThanCc_Mech(testcase)
