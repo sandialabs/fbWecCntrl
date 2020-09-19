@@ -192,7 +192,9 @@ out_var.overall_eff = -1*P_tot/out_var.Pm_ub_tot;
 out_var.max_efficiency = out_var.Pe_ub_tot/out_var.Pm_ub_tot;
 out_var.relative_efficiency = -1*P_tot/out_var.Pe_ub_tot;
 
-
+out_var.PTO_param_out = PTO_param;
+out_var.PTO_param_names = PTO_cfg.PTO_param_names;
+out_var.cntrl = y(end-1:end);
 
 out_var.T = table([PTO_cfg.PTO_param_lb(PTO_cfg.PTO_param_mask),nan(1,2)]',...
     [PTO_cfg.PTO_param_ub(PTO_cfg.PTO_param_mask),nan(1,2)]',...
