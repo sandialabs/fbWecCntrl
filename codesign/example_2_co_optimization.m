@@ -145,6 +145,8 @@ fprintf('Theoretical max efficiency [ ]:\t\t%.2f\n', out_var_coopt.max_efficienc
 fprintf('Electrical efficiency [ ]:\t\t%.2f\n', out_var_coopt.overall_eff)
 fprintf('Rel Electrical efficiency [ ]:\t\t%.2f\n', out_var_coopt.relative_efficiency )
 
+save out_var_ex2.mat out_var_coopt out_var_no_coopt
+
 % *********************************************
 
 function out_var = co_optimize_PTO(Fe, Zi, PTO_cfg, w)
