@@ -16,7 +16,7 @@ end
 
 function test_GenVsPtoImpedance(testcase)
     w = [1,2,3];
-    Zgen = Gen_impedance(w,[0,1,1e-3,0]); % [Ir, Kt, Rw, Lw]
+    Zgen = Gen_impedance([0,1,1e-3,0], w); % [Ir, Kt, Rw, Lw]
     Zpto = PTO_Impedance([1, 0, 0, 0, 1, 1e-3, 0],w); % [N, Id, Bd, Kd, Kt, Rw, Lw]
     verifyEqual(testcase,Zgen,Zpto)
 end

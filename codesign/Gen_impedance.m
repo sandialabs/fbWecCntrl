@@ -1,4 +1,4 @@
-function Zgen = Gen_impedance(w, genParams)
+function Zgen = Gen_impedance(genParams, w)
     
     Ir = genParams(1);      % rotor inertia
     Kt = genParams(2);      % torque coefficient
