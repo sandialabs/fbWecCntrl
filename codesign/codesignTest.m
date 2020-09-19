@@ -243,3 +243,25 @@ function test_codesign_efficiencyFig(testcase)
     verifyEqual(testcase, Pmax, prev.Pmax,'RelTol',1e-12,...
         'codesign_powerTable.m: Pmax results don''t match previous')
 end
+
+function test_example_1_co_optimization_coopt(testcase)
+    % compare w. previous results from 'example_1_co_optimization_coopt.m'
+    
+    exp_val.PTO_param_out = [0.081547353842508, 0.050000000087943, ...
+        0.010000000000000, -2.522473436991894, 0.067000000000000,...
+        0.001000000000000, 0]*1e2;
+    
+    exp_val.P_tot = -6.136030975574725e4;
+    
+    exp_val.P_tot_no_coopt = -3.866654658114836e+04;
+    
+    evalc('example_1_co_optimization'); close all;
+    
+    verifyEqual(testcase, out_var_coopt.PTO_param_out, exp_val.PTO_param_out,'RelTol',1e-12)
+    
+    verifyEqual(testcase, out_var_coopt.P_tot, exp_val.P_tot,'RelTol',1e-12)
+    
+    verifyEqual(testcase, out_var_no_coopt.P_tot, exp_val.P_tot_no_coopt,'RelTol',1e-12)
+    
+end
+

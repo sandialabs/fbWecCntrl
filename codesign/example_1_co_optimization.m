@@ -22,8 +22,8 @@
 %     along with fbWecCntrl.  If not, see <https://www.gnu.org/licenses/>.
 % ---------------------------------------------------------------------
 
-clear
-close all
+% clear
+% close all
 
 % clf
 mf = load('waveBot_heaveModel.mat');
