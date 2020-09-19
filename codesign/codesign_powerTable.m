@@ -150,13 +150,9 @@ function [T,Pmax,mPmech,mPelec] = myfunc(Fe,Zi,Zpto,w)
         
         % evaluate mech performance
         [Pmech_tot(ii), mPmech(:,ii)] = Pmech(wc(ii).ZL, Zpto, Zi, Fe);
-%         assert(-1*Pmech_tot(ii) <= sum(Pmax),...
-%             sprintf('''%s'' making more mechanical power than theoretical limit',wc(1).leg))
         
         % evaluate mech performance
         [Pelec_tot(ii), mPelec(:,ii)] = Pelec(wc(ii).ZL, Zpto, Zi, Fe);
-%         assert(-1*Pelec_tot(ii) <= sum(Pmax),...
-%             sprintf('''%s'' making more mechanical power than theoretical limit',wc(1).leg))
         
         legCel{ii} = wc(ii).leg;
     end

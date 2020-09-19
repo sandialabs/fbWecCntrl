@@ -35,4 +35,7 @@ function [Pelec_tot, Pelec] = Pelec(ZL, Zpto, Zi, Fe)
     
     Pelec_tot = -1 * sum(Pelec);
     
+    Pmax = abs(Fe).^2 ./ (8*real(Zi));
+    assert(-1*Pelec_tot <= sum(Pmax)  + 1e3*eps,...
+            sprintf('more electrical power than theoretical limit'))
 end

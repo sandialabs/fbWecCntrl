@@ -29,6 +29,8 @@ function [Pmech_tot, Pmech] = Pmech(ZL, Zpto, Zi, Fe)
         Fe (:,1) double {mustBeFinite}
     end
     
+    
+    
     Zin = squeeze(Zpto(1,1,:)) ...
         - ((squeeze(Zpto(1,2,:)) .* squeeze(Zpto(2,1,:))) ...
         ./ (squeeze(Zpto(2,2,:)) + ZL));
@@ -36,4 +38,8 @@ function [Pmech_tot, Pmech] = Pmech(ZL, Zpto, Zi, Fe)
     Pmech = 1/2 * abs( Fe ./ (Zi + Zin) ).^2 .* real(Zin);
     
     Pmech_tot = -1 * sum(Pmech);
+    
+    Pmax = abs(Fe).^2 ./ (8*real(Zi));
+    assert(-1*Pmech_tot <= sum(Pmax) + 1e3*eps,...
+            sprintf('more mechanical power than theoretical limit'))
 end
