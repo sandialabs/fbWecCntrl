@@ -187,7 +187,13 @@ out_var.overall_eff = -1*P_tot/out_var.Pm_ub_tot;
 out_var.max_efficiency = out_var.Pe_ub_tot/out_var.Pm_ub_tot;
 out_var.relative_efficiency = -1*P_tot/out_var.Pe_ub_tot;
 
+out_var.PTO_param_out = PTO_param;
+out_var.PTO_param_names = PTO_cfg.PTO_param_names;
+out_var.cntrl = y(end-1:end);
 
+out_var.Z_th = Z_th;
+out_var.Zi = Zi;
+out_var.w = w;
 
 out_var.T = table([PTO_cfg.PTO_param_lb(PTO_cfg.PTO_param_mask),nan(1,2)]',...
     [PTO_cfg.PTO_param_ub(PTO_cfg.PTO_param_mask),nan(1,2)]',...
@@ -267,17 +273,6 @@ end
 
 function ZL = Load_impedance(x, PTO_params, w)
 
-% can call the controller from here. at the momem we assume it is just a PI
-
-
-% Nfreq = length(w);
-
-% Z_mat = zeros(2,2,Nfreq);
-
-% N = Gamma(1);
-% Id = Gamma(2);
-% Bd = Gamma(3);
-% Kd = Gamma(4);
 Kt = PTO_params(5);
 Rw = PTO_params(6);
 Lw = PTO_params(7);
