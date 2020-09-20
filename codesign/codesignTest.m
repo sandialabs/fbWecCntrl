@@ -247,13 +247,12 @@ end
 function test_example_1_co_optimization_coopt(testcase)
     % compare w. previous results from 'example_1_co_optimization_coopt.m'
     
-    exp_val.PTO_param_out = [0.081547353842508, 0.050000000087943, ...
-        0.010000000000000, -2.522473436991894, 0.067000000000000,...
-        0.001000000000000, 0]*1e2;
+    exp_val.PTO_param_out = [0.121335997556269, 0.050000015634611, 0.01,...
+        -1.055503033767243, 0.067, 0.005, 0]*1e2;
     
-    exp_val.P_tot = -6.136030975574725e4;
+    exp_val.P_tot = -23.589519668211878;
     
-    exp_val.P_tot_no_coopt = -3.866654658114836e+04;
+    exp_val.P_tot_no_coopt = -9.248175629326449;
     
     evalc('example_1_co_optimization'); close all;
     
