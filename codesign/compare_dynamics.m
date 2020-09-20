@@ -1,4 +1,5 @@
 clear
+close all
 
 ex1 = load('out_var_ex1.mat');
 ex2 = load('out_var_ex2.mat');
@@ -52,8 +53,8 @@ grid on
 axes_handles = findall(gcf, 'type', 'axes');
 legend(axes_handles(3),'Colocated controller', 'Non-colocated controller','Location', 'best');
 
-set(gca, 'Color', 'none');
-export_fig coDesign_bode_openLoop.pdf -transparent
+set(gcf, 'Color', 'w');
+% export_fig coDesign_bode_openLoop.pdf
 
 opts.Title.String = 'Noise Sensitivity Functions';
 opts.PhaseVisible = 'off';
@@ -64,8 +65,8 @@ grid on
 axes_handles = findall(gcf, 'type', 'axes');
 legend(axes_handles(3),'Colocated controller', 'Non-colocated controller','Location', 'best');
 
-set(gca, 'Color', 'none');
-export_fig coDesign_bode_sensitivity.pdf -transparent
+set(gcf, 'Color', 'w');
+% export_fig coDesign_bode_sensitivity.pdf
 
 
 

@@ -39,7 +39,7 @@ Xi = imag(Zi);  % intrinsic reactance
 % Sea state selection
 % We must define a sea state on which perform the analysis
 Tp = 3.5; % Wave Period (Peak period for Jonswap)
-Hs = 0.125; % wave Height
+Hs = 0.254; % wave Height
 Gamma  = 3.3; % peakiness factor (for Jonswap)
 
 
@@ -140,8 +140,11 @@ fprintf('Optimal parameters for NON co-optimized PTO\n')
 disp(out_var_no_coopt.T)
 
 fprintf('Max theoretical Mechanical power [w]:\t%.2e\n',out_var_no_coopt.Pm_ub_tot)
+disp(out_var_no_coopt.Pm_ub_tot)
 fprintf('Max theoretical Electrical power [w]:\t%.2e\n',out_var_no_coopt.Pe_ub_tot)
+disp(out_var_no_coopt.Pe_ub_tot)
 fprintf('Total Electrical power [w]:\t\t%.2e\n',-1*out_var_no_coopt.P_tot)
+disp(-1*out_var_no_coopt.P_tot)
 fprintf('Theoretical max efficiency [ ]:\t\t%.2f\n', out_var_no_coopt.max_efficiency)
 fprintf('Electrical efficiency [ ]:\t\t%.2f\n', out_var_no_coopt.overall_eff)
 fprintf('Rel Electrical efficiency [ ]:\t\t%.2f\n', out_var_no_coopt.relative_efficiency )
@@ -154,8 +157,11 @@ fprintf('Optimal parameters for co-optimized PTO\n')
 disp(out_var_coopt.T)
 
 fprintf('Max theoretical Mechanical power [w]:\t%.2e\n',out_var_coopt.Pm_ub_tot)
+disp(out_var_coopt.Pm_ub_tot)
 fprintf('Max theoretical Electrical power [w]:\t%.2e\n',out_var_coopt.Pe_ub_tot)
+disp(out_var_coopt.Pe_ub_tot)
 fprintf('Total Electrical power [w]:\t\t%.2e\n',-1*out_var_coopt.P_tot)
+disp(-1*out_var_coopt.P_tot)
 fprintf('Theoretical max efficiency [ ]:\t\t%.2f\n', out_var_coopt.max_efficiency)
 fprintf('Electrical efficiency [ ]:\t\t%.2f\n', out_var_coopt.overall_eff)
 fprintf('Rel Electrical efficiency [ ]:\t\t%.2f\n', out_var_coopt.relative_efficiency )
