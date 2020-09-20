@@ -28,7 +28,7 @@
 cf = 60;
 mf = load('waveBot_heaveModel.mat');
 Zi = mf.Zi_frf(cf:end,1);
-Hex = mf.H_frf(cf:end,1)*1e1;
+Hex = mf.H_frf(cf:end,1);
 f = mf.f(cf:end,1);
 w = 2*pi*f;
 dw = w(2)-w(1);
@@ -37,7 +37,7 @@ Zpto = PTO_Impedance([1, 0, 0, 0, sqrt(2/3), 1e-3, 0],w); % [N, Id, Bd, Kd, Kt, 
 
 %% Define sea state and excitation
 
-Hs = 0.125;
+Hs = 0.254;
 gamma = 3.3;
 Tp = [1.58, 2.5, 3.5];
 for ii = 1:length(Tp)
