@@ -23,6 +23,8 @@
 clear
 close all
 
+plot_flag = 1;
+
 % clf
 mf = load('waveBot_heaveModel.mat');
 Zi = mf.Zi_frf(60:end,1);
@@ -37,7 +39,7 @@ Xi = imag(Zi);  % intrinsic reactance
 % Sea state selection
 % We must define a sea state on which perform the analysis
 Tp = 3.5; % Wave Period (Peak period for Jonswap)
-Hs = 6; % wave Height
+Hs = 0.125; % wave Height
 Gamma  = 3.3; % peakiness factor (for Jonswap)
 
 
@@ -74,7 +76,7 @@ Kt = 6.7;
 Kt_opt_flag = false;
 Kt_bnds = [ 3, 4 ];
 % Generator winding resistance
-Rw = 0.1;
+Rw = 0.5;
 Rw_opt_flag = false;
 Rw_bnds = [ 3, 4 ];
 % Generator winding inductance
@@ -105,9 +107,13 @@ PTO_cfg.PTO_param = [N, Id, Bd, Kd, Kt, Rw, Lw];
 
 out_var_no_coopt = co_optimize_PTO(Fe, Zi, PTO_cfg, w);
 
+if plot_flag
+    pause(1)
+    set(gcf, 'Color', 'w');
+    export_fig coDesign_example4_non_coopt.pdf
+end
 
-
-%% co-optimization 
+%% co-optimization
 
 N_opt_flag = true;
 Id_opt_flag = true;
@@ -116,6 +122,11 @@ PTO_cfg.PTO_param_mask = [N_opt_flag, Id_opt_flag, Bd_opt_flag, Kd_opt_flag, Kt_
 
 out_var_coopt = co_optimize_PTO(Fe, Zi, PTO_cfg, w);
 
+if plot_flag
+    pause(1)
+    set(gcf, 'Color', 'w');
+    export_fig coDesign_example4_coopt.pdf
+end
 
 % ***************************************
 disp(' ')
@@ -125,11 +136,11 @@ fprintf('Optimal parameters for NON co-optimized PTO\n')
 disp(out_var_no_coopt.T)
 
 fprintf('Max theoretical Mechanical power [w]:\t%.2e\n',out_var_no_coopt.Pm_ub_tot)
-fprintf('Max theoretical Electrical power [w]:\t%.2e\n',out_var_no_coopt.Pe_ub_tot)
+% fprintf('Max theoretical Electrical power [w]:\t%.2e\n',out_var_no_coopt.Pe_ub_tot)
 fprintf('Total Electrical power [w]:\t\t%.2e\n',-1*out_var_no_coopt.P_tot)
-fprintf('Theoretical max efficiency [ ]:\t\t%.2f\n', out_var_no_coopt.max_efficiency)
+% fprintf('Theoretical max efficiency [ ]:\t\t%.2f\n', out_var_no_coopt.max_efficiency)
 fprintf('Electrical efficiency [ ]:\t\t%.2f\n', out_var_no_coopt.overall_eff)
-fprintf('Rel Electrical efficiency [ ]:\t\t%.2f\n', out_var_no_coopt.relative_efficiency )
+% fprintf('Rel Electrical efficiency [ ]:\t\t%.2f\n', out_var_no_coopt.relative_efficiency )
 
 disp(' ')
 disp('******************')
@@ -139,11 +150,11 @@ fprintf('Optimal parameters for co-optimized PTO\n')
 disp(out_var_coopt.T)
 
 fprintf('Max theoretical Mechanical power [w]:\t%.2e\n',out_var_coopt.Pm_ub_tot)
-fprintf('Max theoretical Electrical power [w]:\t%.2e\n',out_var_coopt.Pe_ub_tot)
+% fprintf('Max theoretical Electrical power [w]:\t%.2e\n',out_var_coopt.Pe_ub_tot)
 fprintf('Total Electrical power [w]:\t\t%.2e\n',-1*out_var_coopt.P_tot)
-fprintf('Theoretical max efficiency [ ]:\t\t%.2f\n', out_var_coopt.max_efficiency)
+% fprintf('Theoretical max efficiency [ ]:\t\t%.2f\n', out_var_coopt.max_efficiency)
 fprintf('Electrical efficiency [ ]:\t\t%.2f\n', out_var_coopt.overall_eff)
-fprintf('Rel Electrical efficiency [ ]:\t\t%.2f\n', out_var_coopt.relative_efficiency )
+% fprintf('Rel Electrical efficiency [ ]:\t\t%.2f\n', out_var_coopt.relative_efficiency )
 
 % *********************************************
 
@@ -219,7 +230,7 @@ out_var.T = table([PTO_cfg.PTO_param_lb(PTO_cfg.PTO_param_mask),nan(1,2)]',...
 
 % fprintf('Optimal parameters\n')
 % disp(T)
-% 
+%
 % fprintf('Max theoretical Mechanical power [w]:\t%.2e\n',Pm_ub_tot)
 % fprintf('Max theoretical Electrical power [w]:\t%.2e\n',Pe_ub_tot)
 % fprintf('Total Electrical power [w]:\t\t%.2e\n',-1*P_tot)
@@ -239,22 +250,23 @@ hold on
 grid on
 set(ax(1),'XScale','log')
 area(f, Pm_ub, 'facealpha',0.5)
-area(f, Pe_ub, 'facealpha',0.5)
+% area(f, Pe_ub, 'facealpha',0.5)
 area(f, P_o, 'facealpha',0.5)
 
 xlim([0.2,1])
-legend(ax(1),'Theroetical Upper Bound (Mech)', 'Theroetical Upper Bound (Elec)', 'Actual Electrical power')
+legend(ax(1),'Theroetical Upper Bound (Mech)', 'Actual Electrical power')
+% legend(ax(1),'Theroetical Upper Bound (Mech)', 'Theroetical Upper Bound (Elec)', 'Actual Electrical power')
 ylabel(ax(1),'Power [w]')
 
 ax(2) = subplot(2,1,2);
 set(ax(2),'XScale','log')
 hold on
-area(f, eta_cc, 'facealpha',0.5)
+% area(f, eta_cc, 'facealpha',0.5)
 area(f, eta_o, 'facealpha',0.5)
 ylim([0 ,1])
 xlim([0.2,1])
 grid on
-legend(ax(2),'Theroetical Efficiency Upper Bound (CC)', 'Actual Efficiency (PI)')
+legend(ax(2), 'Actual Efficiency (PI)')
 ylabel(ax(2),'Efficiency [ ]')
 
 linkaxes(ax,'x')

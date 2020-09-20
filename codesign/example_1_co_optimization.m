@@ -25,6 +25,8 @@
 clear
 close all
 
+plot_flag = 1;
+
 % clf
 mf = load('waveBot_heaveModel.mat');
 Zi = mf.Zi_frf(60:end,1);
@@ -39,7 +41,7 @@ Xi = imag(Zi);  % intrinsic reactance
 % Sea state selection
 % We must define a sea state on which perform the analysis
 Tp = 3.5; % Wave Period (Peak period for Jonswap)
-Hs = 6; % wave Height
+Hs = 0.125; % wave Height
 Gamma  = 3.3; % peakiness factor (for Jonswap)
 
 
@@ -76,7 +78,7 @@ Kt = 6.7;
 Kt_opt_flag = false;
 Kt_bnds = [ 3, 4 ];
 % Generator winding resistance
-Rw = 0.1;
+Rw = 0.5;
 Rw_opt_flag = false;
 Rw_bnds = [ 3, 4 ];
 % Generator winding inductance
@@ -107,7 +109,11 @@ PTO_cfg.PTO_param = [N, Id, Bd, Kd, Kt, Rw, Lw];
 
 out_var_no_coopt = co_optimize_PTO(Fe, Zi, PTO_cfg, w);
 
-
+if plot_flag
+    pause(1)
+    set(gcf, 'Color', 'w');
+    export_fig coDesign_example1_non_coopt.pdf
+end
 
 %% co-optimization 
 
@@ -118,6 +124,11 @@ PTO_cfg.PTO_param_mask = [N_opt_flag, Id_opt_flag, Bd_opt_flag, Kd_opt_flag, Kt_
 
 out_var_coopt = co_optimize_PTO(Fe, Zi, PTO_cfg, w);
 
+if plot_flag
+    pause(1)
+    set(gcf, 'Color', 'w');
+    export_fig coDesign_example1_coopt.pdf
+end
 
 % ***************************************
 disp(' ')
@@ -267,6 +278,7 @@ ylabel(ax(2),'Efficiency [ ]')
 
 linkaxes(ax,'x')
 xlabel(ax(2),'Frequency [Hz]')
+
 
 % semilogx( f, abs(den_P), f, real(den_P), f, imag(den_P))
 % xlim([0.2 ,1])

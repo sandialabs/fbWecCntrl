@@ -1,7 +1,7 @@
 clear
 
-ex1 = load('out_var_ex1.mat')
-ex2 = load('out_var_ex2.mat')
+ex1 = load('out_var_ex1.mat');
+ex2 = load('out_var_ex2.mat');
 
 
 ex1.out_var_coopt.PTO_param_names
@@ -41,17 +41,31 @@ L2 = G2*C2;
 S1 = -L1 / (1 + L1);
 S2 = -L2 / (1 + L2);
 
+opts = bodeoptions;
+opts.FreqUnits = 'Hz';
+opts.Title.String = 'Open Loop Responses';
+
 
 figure(1)
-bode(L1, L2)
+bodeplot(L1, L2, opts);
 grid on
-legend('colocated', 'non-colocated')
+axes_handles = findall(gcf, 'type', 'axes');
+legend(axes_handles(3),'Colocated controller', 'Non-colocated controller','Location', 'best');
+
+set(gca, 'Color', 'none');
+export_fig coDesign_bode_openLoop.pdf -transparent
+
+opts.Title.String = 'Noise Sensitivity Functions';
+opts.PhaseVisible = 'off';
 
 figure(2)
-bode(S1, S2)
+bodeplot(S1, S2, opts);
 grid on
-legend('colocated', 'non-colocated')
+axes_handles = findall(gcf, 'type', 'axes');
+legend(axes_handles(3),'Colocated controller', 'Non-colocated controller','Location', 'best');
 
+set(gca, 'Color', 'none');
+export_fig coDesign_bode_sensitivity.pdf -transparent
 
 
 

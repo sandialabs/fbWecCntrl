@@ -20,9 +20,10 @@
 %     along with fbWecCntrl.  If not, see <https://www.gnu.org/licenses/>.
 % ---------------------------------------------------------------------
 
-clc
 clear
 close all
+
+plot_flag = 1;
 
 % clf
 mf = load('waveBot_heaveModel.mat');
@@ -37,8 +38,8 @@ Xi = imag(Zi);  % intrinsic reactance
 
 % Sea state selection
 % We must define a sea state on which perform the analysis
-Tp = 2.5; % Wave Period (Peak period for Jonswap)
-Hs = 6; % wave Height
+Tp = 3.5; % Wave Period (Peak period for Jonswap)
+Hs = 0.125; % wave Height
 Gamma  = 3.3; % peakiness factor (for Jonswap)
 
 
@@ -106,22 +107,31 @@ PTO_cfg.PTO_param = [N, Id, Bd, Kd, Kt, Rw, Lw];
 
 out_var_no_coopt = co_optimize_PTO(Fe, Zi, PTO_cfg, w);
 
+if plot_flag
+    pause(1)
+    set(gcf, 'Color', 'w');
+    export_fig coDesign_example3_non_coopt.pdf
+end
 
-%% co-optimization 
+%% co-optimization
 
 % Generator winding resistance
 Rw = 0.1;
 
 N_opt_flag = true;
 Id_opt_flag = true;
-Kd_opt_flag = false;
+Kd_opt_flag = true;
 
 PTO_cfg.PTO_param_mask = [N_opt_flag, Id_opt_flag, Bd_opt_flag, Kd_opt_flag, Kt_opt_flag, Rw_opt_flag, Lw_opt_flag];
 PTO_cfg.PTO_param = [N, Id, Bd, Kd, Kt, Rw, Lw];
 
 out_var_coopt = co_optimize_PTO(Fe, Zi, PTO_cfg, w);
 
-
+if plot_flag
+    pause(1)
+    set(gcf, 'Color', 'w');
+    export_fig coDesign_example3_coopt.pdf
+end
 % ***************************************
 disp(' ')
 disp('******************')
@@ -224,7 +234,7 @@ out_var.T = table([PTO_cfg.PTO_param_lb(PTO_cfg.PTO_param_mask),nan(1,2)]',...
 
 % fprintf('Optimal parameters\n')
 % disp(T)
-% 
+%
 % fprintf('Max theoretical Mechanical power [w]:\t%.2e\n',Pm_ub_tot)
 % fprintf('Max theoretical Electrical power [w]:\t%.2e\n',Pe_ub_tot)
 % fprintf('Total Electrical power [w]:\t\t%.2e\n',-1*P_tot)
