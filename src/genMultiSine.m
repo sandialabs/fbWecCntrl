@@ -12,10 +12,14 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
     %   T         period of signal [s]
     %
     % optional name-value pairs
-    %   nPh       number of phasings to consider (default: 1e2)
-    %   plotFlag  set to 1 for plots (default: 0)
-    %   color     'pink' or 'white' (default: 'white')
-    %   dt        time-step for time series [s] (default: 1e-2)
+    %   numPhases   number of phasings to consider (default: 1e2) 
+    %   plotFlag    set to 1 for plots (default: 0) 
+    %   color       'pink' or 'white' (default: 'white') 
+    %   dt          time-step for time series [s] (default: 1e-2) 
+    %   RMS         root-mean-square amplitude (default: 1)
+    %   sizeThresh  threshold above which for-loop method will be used;
+    %               this approach is generally slower, until your machine
+    %               needs to use SWAP memory (default: 2e11)
     %
     % Returns:
     %   t         time series vector [s]
@@ -62,7 +66,7 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
         options.color (1,:) string = 'white'
         options.dt (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1e-2
         options.RMS (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1
-        options.probSizeThresh (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 2e11
+        options.sizeThresh (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 2e11
     end
     
     df = 1/T;
@@ -92,7 +96,7 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
     exp_mat = exp(1i * 2*pi*f_vec * (t_vec'));
     
     probSize = options.numPhases * N_freq * length(t_vec);
-    if probSize > options.probSizeThresh
+    if probSize > options.sizeThresh
         for ind_ph = 1: options.numPhases
             fd_ms_tmp(:,ind_ph) = Amp .* exp(1i .* ph_mat(:,ind_ph));
             td_ms_tmp = real(fd_ms_tmp.' * exp_mat);
