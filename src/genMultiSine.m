@@ -57,12 +57,12 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
         fmin (1,1) double {mustBeFinite,mustBeReal,mustBePositive}
         fmax (1,1) double {mustBeFinite,mustBeReal,mustBePositive}
         T (1,1) double {mustBeFinite,mustBeReal,mustBePositive}
-        options.numPhases double {mustBeFinite,mustBeReal,mustBePositive}  = 1e2
-        options.plotFlag {mustBeNumericOrLogical} = 0
-        options.color string = 'white'
+        options.numPhases (1,1) double {mustBeFinite,mustBeReal,mustBePositive}  = 1e2
+        options.plotFlag (1,1) {mustBeNumericOrLogical} = 0
+        options.color (1,:) string = 'white'
         options.dt (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1e-2
         options.RMS (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1
-        options.probSizeThresh double {mustBeFinite,mustBeReal,mustBePositive} = 2e11
+        options.probSizeThresh (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 2e11
     end
     
     df = 1/T;
@@ -76,9 +76,7 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
     
     ph_mat = 2*pi*rand(N_freq, options.numPhases);
     
-%     Amp = ones(size(f_vec));
-    
-    switch options.color
+    switch lower(options.color)
         case 'pink'
             Amp = ones(size(f_vec)) ./ sqrt(f_vec);
         case 'white'
@@ -92,9 +90,6 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
     
     t_vec = (0:dt:T-dt)';
     exp_mat = exp(1i * 2*pi*f_vec * (t_vec'));
-    
-%     fd_ms = [];
-%     p2p = Inf;
     
     probSize = options.numPhases * N_freq * length(t_vec);
     if probSize > options.probSizeThresh
@@ -126,7 +121,6 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
         
         subplot 211
         loglog(f_vec, Amp, '.')
-%         ylim([0,1])
         xlabel('Frequency [Hz]','interpreter','latex');
         ylabel('Amplitude','interpreter','latex');
         title(sprintf('%s noise, $f \\in [%.2g,%.2g]$, RMS = %g',...
@@ -134,14 +128,12 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
         grid on
         
         subplot 212
-        
         plot(t_vec, td_ms)
         xlabel('Time [s]','interpreter','latex');
         ylabel('Ampiltude','interpreter','latex');
         title(sprintf('period: %3g s',...
             T),'interpreter','latex');
         grid on
-%         ylim([-1.25, 1.25])
     end
     
     t = t_vec;
