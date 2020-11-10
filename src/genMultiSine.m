@@ -97,15 +97,16 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
     
     probSize = options.numPhases * N_freq * length(t_vec);
     if probSize > options.sizeThresh
+        p2p = Inf;
         for ind_ph = 1: options.numPhases
             fd_ms_tmp(:,ind_ph) = Amp .* exp(1i .* ph_mat(:,ind_ph));
-            td_ms_tmp = real(fd_ms_tmp.' * exp_mat);
-            delta_amp = max(td_ms_tmp) - min(td_ms_tmp);
+            td_ms_tmp(:,ind_ph) = real(fd_ms_tmp(:,ind_ph).' * exp_mat);
+            delta_amp = max(td_ms_tmp(:,ind_ph)) - min(td_ms_tmp(:,ind_ph));
             if delta_amp < p2p
                 p2p = delta_amp;
                 ph_ms = ph_mat(:, ind_ph);
-                fd_ms = fd_ms_tmp; %/max(abs(sig_tmp));
-                td_ms = td_ms_tmp;
+                fd_ms = fd_ms_tmp(:,ind_ph);
+                td_ms = td_ms_tmp(:,ind_ph);
             end
         end
     else
