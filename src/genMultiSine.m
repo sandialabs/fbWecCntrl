@@ -60,7 +60,8 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
         options.numPhases double {mustBeFinite,mustBeReal,mustBePositive}  = 1e2
         options.plotFlag {mustBeNumericOrLogical} = 0
         options.color string = 'white'
-        options.dt double {mustBeFinite,mustBeReal,mustBePositive} = 1e-2
+        options.dt (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1e-2
+        options.RMS (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1
     end
     
     df = 1/T;
@@ -74,22 +75,25 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
     
     ph_mat = 2*pi*rand(N_freq, options.numPhases);
     
-    Amp = (sqrt(f_vec(1))./((f_vec).^0.5));
+%     Amp = ones(size(f_vec));
     
     switch options.color
         case 'pink'
-            Amp = Amp/Amp(1);
+            Amp = ones(size(f_vec)) ./ sqrt(f_vec);
         case 'white'
-            Amp = 1-f_vec/100;
+            Amp = ones(size(f_vec));
         otherwise
             error('Unkown noise color (choose ''pink'' or ''white'')')
     end
 
+    RMS_tmp = sqrt(sum(Amp.^2))/sqrt(2)/options.RMS;
+    Amp = Amp / RMS_tmp;
+    
     t_vec = (0:dt:T-dt)';
     exp_mat = exp(1i * 2*pi*f_vec * (t_vec'));
     
-    fd_ms = [];
-    p2p = Inf;
+%     fd_ms = [];
+%     p2p = Inf;
     
     % TODO: use this approach if the problem is really big
 %     for ind_ph = 1: options.numPhases
@@ -109,7 +113,7 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
     delta_amp = max(td_ms_tmp,[],1) - min(td_ms_tmp,[],1);
     
     [p2p,midx] = min(delta_amp);
-    td_ms = td_ms_tmp(:,midx) / (0.5*p2p);
+    td_ms = td_ms_tmp(:,midx);% / (0.5*p2p);
     fd_ms = fd_ms_tmp(:,midx);
     ph_ms = ph_mat(:,midx);
     
@@ -118,12 +122,12 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
         figure
         
         subplot 211
-        semilogx(f_vec, Amp, '.')
-        ylim([0,1])
+        loglog(f_vec, Amp, '.')
+%         ylim([0,1])
         xlabel('Frequency [Hz]','interpreter','latex');
         ylabel('Amplitude','interpreter','latex');
-        title(sprintf('%s noise, $f \\in [%.2g,%.2g]$',...
-            options.color,fmin,fmax),'interpreter','latex');
+        title(sprintf('%s noise, $f \\in [%.2g,%.2g]$, RMS = %g',...
+            options.color,fmin,fmax, options.RMS),'interpreter','latex');
         grid on
         
         subplot 212
@@ -134,7 +138,7 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
         title(sprintf('period: %3g s',...
             T),'interpreter','latex');
         grid on
-        ylim([-1.25, 1.25])
+%         ylim([-1.25, 1.25])
     end
     
     t = t_vec;
