@@ -62,6 +62,7 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
         options.color string = 'white'
         options.dt (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1e-2
         options.RMS (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1
+        options.probSizeThresh double {mustBeFinite,mustBeReal,mustBePositive} = 2e11
     end
     
     df = 1/T;
@@ -95,27 +96,29 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
 %     fd_ms = [];
 %     p2p = Inf;
     
-    % TODO: use this approach if the problem is really big
-%     for ind_ph = 1: options.numPhases
-%         fd_ms_tmp(:,ind_ph) = Amp .* exp(1i .* ph_mat(:,ind_ph));
-%         td_ms_tmp = real(fd_ms_tmp.' * exp_mat);
-%         delta_amp = max(td_ms_tmp) - min(td_ms_tmp);
-%         if delta_amp < p2p
-%             p2p = delta_amp;
-%             ph = ph_mat(:, ind_ph);
-%             fd_ms = fd_ms_tmp; %/max(abs(sig_tmp));
-%             td_ms = td_ms_tmp;
-%         end
-%     end
-    
-    fd_ms_tmp = Amp .* exp(1i .* ph_mat);
-    td_ms_tmp = real(fd_ms_tmp.' * exp_mat)';
-    delta_amp = max(td_ms_tmp,[],1) - min(td_ms_tmp,[],1);
-    
-    [p2p,midx] = min(delta_amp);
-    td_ms = td_ms_tmp(:,midx);% / (0.5*p2p);
-    fd_ms = fd_ms_tmp(:,midx);
-    ph_ms = ph_mat(:,midx);
+    probSize = options.numPhases * N_freq * length(t_vec);
+    if probSize > options.probSizeThresh
+        for ind_ph = 1: options.numPhases
+            fd_ms_tmp(:,ind_ph) = Amp .* exp(1i .* ph_mat(:,ind_ph));
+            td_ms_tmp = real(fd_ms_tmp.' * exp_mat);
+            delta_amp = max(td_ms_tmp) - min(td_ms_tmp);
+            if delta_amp < p2p
+                p2p = delta_amp;
+                ph_ms = ph_mat(:, ind_ph);
+                fd_ms = fd_ms_tmp; %/max(abs(sig_tmp));
+                td_ms = td_ms_tmp;
+            end
+        end
+    else
+        fd_ms_tmp = Amp .* exp(1i .* ph_mat);
+        td_ms_tmp = real(fd_ms_tmp.' * exp_mat)';
+        delta_amp = max(td_ms_tmp,[],1) - min(td_ms_tmp,[],1);
+        
+        [p2p,midx] = min(delta_amp);
+        td_ms = td_ms_tmp(:,midx);
+        fd_ms = fd_ms_tmp(:,midx);
+        ph_ms = ph_mat(:,midx);
+    end
     
     if options.plotFlag
         
