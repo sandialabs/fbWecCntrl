@@ -34,7 +34,6 @@ f = mf.f;
 Kt = 6.1745;            % motor torque constant
 R = 0.5*0;              % motor electrical winding resistance (set to 0 for mech power)
 N = 12.4666;            % gear ratio
-motspecs = {Kt, R, N};  % assemble into structure
 
 % generate sea state
 Hm0 = 0.127;
@@ -42,11 +41,9 @@ Tp = 3;
 gamma = 1.0;
 S = jonswap(2*pi*f,[Hm0, Tp, gamma]);
 
-plotFlag = 1;       % enable plotting
-
 %% Run analysis
 
-[powStudy,fh] = runPowStudy(f,Zi,Hex,S,motspecs,plotFlag);
+[powStudy,fh] = runPowStudy(f,Zi,Hex,S,'plotFlag',1,'Kt',Kt,'R',R,'N',N);
 disp(powStudy(1).gainMatrix)    % displays gain matrix as complex matrix
                                 % without frequency dependency, such that
                                 % k(i,j) = kP(i,j) -1i kI(i,j)

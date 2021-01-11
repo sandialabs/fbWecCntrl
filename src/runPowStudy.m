@@ -1,4 +1,4 @@
-function [powStudy,fh] = runPowStudy(f,Zi,Hex,S,motorSpecs,plotflag,opts)
+function [powStudy,fh] = runPowStudy(f,Zi,Hex,S,options)
 % runPowStudy   designs P and PI controllers for a given WEC (specified by
 % Zi and Hex) and wave spectrum (specified by S).
 % 
@@ -47,21 +47,35 @@ arguments
     Zi (:,:,:) double {mustBeNonNan, mustBeFinite}
     Hex (:,:) double {mustBeNonNan, mustBeFinite}
     S (1,1) struct
-    motorSpecs(1,3) cell {checkSizes(f,Zi,Hex,motorSpecs)}
-    plotflag (1,1) {mustBeNumericOrLogical} = 0 
-    opts struct = struct('symFlag',1,'diagFlag',1)
+    options.Kt (:,:) double {mustBeReal, mustBeNonnegative, mustBeNonNan, mustBeFinite, checkSizes(f,Zi,Hex,options.Kt)} = eye(size(Hex,1))
+    options.R (:,:) double {mustBeReal, mustBeNonnegative, mustBeNonNan, mustBeFinite} = 0*eye(size(Hex,1))
+    options.N (:,:) double {mustBeReal, mustBeNonnegative, mustBeNonNan, mustBeFinite} = eye(size(Hex,1))
+    options.plotFlag (1,1) {mustBeNumericOrLogical} = 0 
+    options.symFlag (1,1) {mustBeNumericOrLogical} = 1
+    options.diagFlag (1,1) {mustBeNumericOrLogical} = 1
 end
 
 %%
-
 w = 2*pi*f;
 n = length(f);
 
 nDof = size(Hex,1);
 
-Kt = motorSpecs{1};
-R = motorSpecs{2};
-N = motorSpecs{3};
+% if isnan(options.Kt)
+%     options.Kt = eye(size(Hex,1));
+% end
+% 
+% if isnan(options.R)
+%     options.R = eye(size(Hex,1))*0;
+% end
+% 
+% if isnan(options.N)
+%     options.N = eye(size(Hex,1));
+% end
+
+Kt = options.Kt;
+R = options.R;
+N = options.N;
 
 %% Wave spectrum and excitation
 
@@ -85,9 +99,9 @@ powStudy(2).nGains = 1;
 % auto populate other fields
 for ii = 1:length(powStudy)
     powStudy(ii).cntrl = @(x) mimoPi(x,...
-        powStudy(ii).nGains,nDof,w,opts.symFlag,opts.diagFlag);
+        powStudy(ii).nGains,nDof,w,options.symFlag,options.diagFlag);
     powStudy(ii).x0 = mimoX0(powStudy(ii).nGains,...
-        nDof,opts.symFlag,opts.diagFlag);
+        nDof,options.symFlag,options.diagFlag);
     powStudy(ii).fn = naturalRes(f,Zi);
     powStudy(ii).R = R;
     powStudy(ii).Kt = Kt;
@@ -95,20 +109,22 @@ for ii = 1:length(powStudy)
     powStudy(ii).N = N;
     powStudy(ii).f = f;
     powStudy(ii).Zi = Zi;
+    powStudy(ii).Hex = Hex;
     powStudy(ii).Fe = Fe;
     powStudy(ii).S = S;
+    powStudy(ii).ampSpect = ampSpect;
     powStudy(ii).powObj = @(x) WecPower(Zi,Fe,powStudy(ii).cntrl(x),Kt,R,N);
     powStudy(ii).powModel = @(C) WecPower(Zi,Fe,C,Kt,R,N);
-    powStudy(ii).symFlag = opts.symFlag;
-    powStudy(ii).diagFlag = opts.diagFlag;
+    powStudy(ii).symFlag = options.symFlag;
+    powStudy(ii).diagFlag = options.diagFlag;
     powStudy(ii).nDof = nDof;
 end
 
 %% Optimization solution
 
 % optimization solver options
-opts = optimoptions('fminunc');
-opts.Display = 'off';
+optim_options = optimoptions('fminunc');
+optim_options.Display = 'off';
 % opts.MaxFunEvals = 5e3;
 % opts.TolX = 1e-8;
 % opts.TolFun = 1e-8;
@@ -117,7 +133,7 @@ opts.Display = 'off';
 
 for ii = 1:length(powStudy)
     
-    powStudy(ii).optimProb.options = opts;
+    powStudy(ii).optimProb.options = optim_options;
     powStudy(ii).optimProb.objective = powStudy(ii).powObj;
     powStudy(ii).optimProb.x0 = powStudy(ii).x0;
     powStudy(ii).optimProb.solver = 'fminunc';
@@ -143,7 +159,7 @@ end
 
 %% plotting
 
-if plotflag
+if options.plotFlag
     
     %----------------------------------------------------------------------
     fh(1) = figure('name','Excitation',...
@@ -377,7 +393,7 @@ set(axh,'Layer','top')
 
 end
 
-function checkSizes(f,Zi,Hex,motorSpecs)
+function checkSizes(f,Zi,Hex,motorSpec)
 % checkSizes    Ensure that key arguments have the correct shapes
 %
 % -------------------------------------------------------------------------
@@ -391,7 +407,7 @@ if ~isequal(size(Zi,1),size(Hex,1))
 end
 
 for ii = 1:3
-    if ~isequal(size(Zi,1),size(motorSpecs{ii},1))
+    if ~isequal(size(Zi,1),size(motorSpec,1))
         error('Argument sizes inconsistent')
     end
 end

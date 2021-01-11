@@ -204,12 +204,7 @@ Hex = transpose(mf.H_frf);
 % Create wave spectrum
 Spect = jonswap(2*pi*f,[Hm0, Tp, gamma]);
 
-Kt = 6.1745;    % WaveBot motor torque constant
-R = 0.5;        % WaveBot motor electrical winding resistance
-N = 12.4666;    % WaveBot heave gear ratio
-motspecs = {Kt, R, N};
-
-[powStudy] = runPowStudy(f,Zi,Hex,Spect,motspecs,0);
+[powStudy] = runPowStudy(f,Zi,Hex,Spect,'Kt',6.1745,'R',0.5,'N',12.4666);
 
 eval = -1.618640473816885;
 verifyEqual(testcase,powStudy(1).P,eval,'RelTol',0.001)
@@ -243,7 +238,8 @@ for ii = 1:3
     
     % Create wave spectrum
     Spect = jonswap(2*pi*f,[Hm0, Tp(ii), gamma]);
-    [powStudy] = runPowStudy(f,Zi,Hex,Spect,motspecs,0);
+    [powStudy] = runPowStudy(f,Zi,Hex,Spect,...
+        'Kt',6.1745,'R',0.5,'N',12.4666);
     
     verifyEqual(testcase,powStudy(1).x(1),evals(ii),'RelTol',0.001)
     
@@ -276,7 +272,8 @@ Spect1.S = 0*Spect.S;
 Spect1.w = Spect.w;
 dw = Spect.w(2) - Spect.w(1);
 Spect1.S(ind) = amp^2/(2*dw);
-[powStudy] = runPowStudy(f,Zi,Hex,Spect1,{Kt,R,N},0);
+[powStudy] = runPowStudy(f,Zi,Hex,Spect1,...
+        'Kt',6.1745,'R',0,'N',12.4666);
 
 verifyEqual(testcase,powStudy(1).P,sum(powStudy(1).Pub_f),'RelTol',1e-10)
 
@@ -308,7 +305,8 @@ Spect1.S = 0*Spect.S;
 Spect1.w = Spect.w;
 dw = Spect.w(2) - Spect.w(1);
 Spect1.S(ind) = amp^2/(2*dw);
-[powStudy] = runPowStudy(f,Zi,Hex,Spect1,{Kt,R,N},0);
+[powStudy] = runPowStudy(f,Zi,Hex,Spect1,...
+        'Kt',6.1745,'R',0.5,'N',12.4666);
 
 verifyEqual(testcase,powStudy(1).P,powStudy(2).P,'RelTol',0.001)
 
@@ -343,10 +341,8 @@ Hex = shiftdim(interp1(WEC.freq,squeeze(WEC.Exc(:,[1,5],1)),w),1);
 
 S = jonswap(2*pi*f,[Hm0, Tp, gamma]);
 
-opts.symFlag = 0;
-opts.diagFlag = 1;
-
-[powStudy] = runPowStudy(f,Zi_frf_sp,Hex,S,motspecs,0,opts);
+[powStudy] = runPowStudy(f,Zi_frf_sp,Hex,S,...
+    'symFlag',0,'diagFlag',1,'Kt',Kt,'R',R,'N',N);
 
 eval = [-1.995366605972993, -0.204457231177428,...
     2.147752702028885, 0.130048543624792]'*1e3;
@@ -354,6 +350,27 @@ eval = [-1.995366605972993, -0.204457231177428,...
 verifyEqual(testcase,powStudy(1).x,eval,'RelTol',1e-3)
 
 end
+
+% function test_wavebot_defaults(testcase)
+% % test_wavebot_defaults     Check that default parameters work
+% 
+% mf = matfile('foswec_model.mat');
+% f = mf.f;
+% Hex = mf.Hex;
+% Zi = mf.Zi;
+% 
+% Hm0 = 0.127;
+% Tp = 3;
+% gamma = 1.0;
+% S = jonswap(2*pi*f,[Hm0, Tp, gamma]);
+% 
+% [powStudy,~] = runPowStudy(f,Zi,Hex,S,...
+%     'symFlag',1,'diagFlag',1,'Kt',eye(size(Hex,1)),'R',0*eye(size(Hex,1)),'N',eye(size(Hex,1)));
+% [powStudy1,~] = runPowStudy(f,Zi,Hex,S);
+% 
+% verifyEqual(testcase,powStudy1(1).P,powStudy(1).P,'RelTol',1e-4)
+% 
+% end
 
 
 %% FOSWEC
@@ -373,7 +390,6 @@ N = 3.75;
 R = eye(size(Hex,1))*R*0;
 Kt = eye(size(Hex,1))*Kt;
 N = eye(size(Hex,1))*N;
-motspecs = {Kt, R, N};
 
 Hm0 = 0.127;
 Tp = 3;
@@ -386,9 +402,8 @@ S.S = 0*S.S;
 [~,ind] = min(abs(S.w - 2*pi/Te));
 S.S(ind) = S2.S(ind);
 
-opts.symFlag = 1;
-opts.diagFlag = 0;
-[powStudy,~] = runPowStudy(f,Zi,Hex,S,motspecs,0,opts);
+[powStudy,~] = runPowStudy(f,Zi,Hex,S,...
+    'symFlag',1,'diagFlag',0,'Kt',Kt,'R',R,'N',N);
 
 verifyEqual(testcase,powStudy(1).efc,1,'RelTol',0.01)
 
@@ -410,16 +425,14 @@ N = 3.75;
 R = eye(size(Hex,1))*R*0;
 Kt = eye(size(Hex,1))*Kt;
 N = eye(size(Hex,1))*N;
-motspecs = {Kt, R, N};
 
 Hm0 = 0.127;
 Tp = 3;
 gamma = 1.0;
 S = jonswap(2*pi*f,[Hm0, Tp, gamma]);
 
-opts.symFlag = 1;
-opts.diagFlag = 0;
-[powStudy,~] = runPowStudy(f,Zi,Hex,S,motspecs,0,opts);
+[powStudy,~] = runPowStudy(f,Zi,Hex,S,...
+    'symFlag',1,'diagFlag',0,'Kt',Kt,'R',R,'N',N);
 
 expvals = [-23.807678927193628;...
     -12.234542384574750;...
@@ -428,3 +441,26 @@ expvals = [-23.807678927193628;...
 verifyEqual(testcase,powStudy(1).x,expvals,'RelTol',1e-4)
 
 end
+
+
+function test_foswec_defaults(testcase)
+% test_foswec_defaults     Check that default parameters work
+
+mf = matfile('foswec_model.mat');
+f = mf.f;
+Hex = mf.Hex;
+Zi = mf.Zi;
+
+Hm0 = 0.127;
+Tp = 3;
+gamma = 1.0;
+S = jonswap(2*pi*f,[Hm0, Tp, gamma]);
+
+[powStudy,~] = runPowStudy(f,Zi,Hex,S,...
+    'symFlag',1,'diagFlag',1,'Kt',eye(size(Hex,1)),'R',0*eye(size(Hex,1)),'N',eye(size(Hex,1)));
+[powStudy1,~] = runPowStudy(f,Zi,Hex,S);
+
+verifyEqual(testcase,powStudy1(1).P,powStudy(1).P,'RelTol',1e-4)
+
+end
+

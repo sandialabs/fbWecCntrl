@@ -38,10 +38,7 @@ N = 3.75;       % gear ratio
 % replicate for symetric MIMO system
 R = eye(size(Hex,1))*R;     
 Kt = eye(size(Hex,1))*Kt;
-N = eye(size(Hex,1))*N;
-
-% assemble into structure
-motspecs = {Kt, R, N};      
+N = eye(size(Hex,1))*N;  
 
 % generate sea state
 Hm0 = 0.127; 
@@ -52,11 +49,9 @@ S = jonswap(2*pi*f,[Hm0, Tp, gamma]);
 opts.symFlag = 1;   % force controller to be symmetric
 opts.diagFlag = 0;  % allow for cross-coupling control
 
-plotFlag = 1;       % enable plotting
-
 %% Run analysis
 
-[powStudy,fh] = runPowStudy(f,Zi,Hex,S,motspecs,plotFlag,opts);
+[powStudy,fh] = runPowStudy(f,Zi,Hex,S,'plotFlag',1,'Kt',Kt,'R',R,'N',N);
 disp(powStudy(1).gainMatrix)    % displays gain matrix as complex matrix
                                 % without frequency dependency, such that
                                 % k(i,j) = kP(i,j) -1i kI(i,j)
