@@ -186,6 +186,31 @@ verifyEqual(testcase,C,expVal)
     
 end
 
+%%
+
+function test_upperBoundOnly(testcase)
+% test_upperBoundOnly   Check that the flag for upper bound only works
+    
+Hm0 = 0.127;
+Tp = 1.6;
+gamma = 1.0;
+mf = matfile('WaveBot_heaveModel.mat');
+f = mf.f;               % frequency vector
+Zi = shiftdim(mf.Zi_frf,-2);
+Hex = transpose(mf.H_frf);
+
+% Create wave spectrum
+Spect = jonswap(2*pi*f,[Hm0, Tp, gamma]);
+
+[powStudy] = runPowStudy(f,Zi,Hex,Spect,...
+    'Kt',6.1745,'R',0.5,'N',12.4666);
+[powStudyUb] = runPowStudy(f,Zi,Hex,Spect,...
+    'Kt',6.1745,'R',0.5,'N',12.4666,'UpperBoundOnly',1);
+
+verifyEqual(testcase,powStudy(1).Pub,powStudyUb(1).Pub,'RelTol',0.001)
+
+end
+
 %% WaveBot
 
 function test_waveBot_pow(testcase)

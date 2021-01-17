@@ -14,6 +14,8 @@ function [powStudy,fh] = runPowStudy(f,Zi,Hex,S,options)
 %   opts        (optional) structure to specify controller options
 %     .symFlag  set to 1 to force controller to be symmetric (MIMO)
 %     .diagFlag set to 1 to force diagonal controller (MIMO)
+%     .UpperBoundOnly set to 1 to only calculate upper bound of power
+%               (complex conjugate control)
 %
 % Returns:
 %   powStudy    struct with results
@@ -53,6 +55,7 @@ arguments
     options.plotFlag (1,1) {mustBeNumericOrLogical} = 0 
     options.symFlag (1,1) {mustBeNumericOrLogical} = 1
     options.diagFlag (1,1) {mustBeNumericOrLogical} = 1
+    options.upperBoundOnly (1,1) {mustBeNumericOrLogical} = 0
 end
 
 %%
@@ -138,23 +141,49 @@ for ii = 1:length(powStudy)
     powStudy(ii).optimProb.x0 = powStudy(ii).x0;
     powStudy(ii).optimProb.solver = 'fminunc';
     
-    % solve problem
-    [x,fval,ef,outp] = fminunc(powStudy(ii).optimProb);
     
-    % store results
-    powStudy(ii).x = x;
-    powStudy(ii).gainMatrix = mimoPi(powStudy(ii).x,...
-        powStudy(ii).nGains,powStudy(ii).nDof,1,...
-        powStudy(ii).symFlag,powStudy(ii).diagFlag);
+    if ~options.upperBoundOnly
+        
+        % solve problem
+        [x,fval,ef,outp] = fminunc(powStudy(ii).optimProb);
+        
+        % store results
+        powStudy(ii).x = x;
+        powStudy(ii).gainMatrix = mimoPi(powStudy(ii).x,...
+            powStudy(ii).nGains,powStudy(ii).nDof,1,...
+            powStudy(ii).symFlag,powStudy(ii).diagFlag);
+
+        [powStudy(ii).P, powStudy(ii).P_f, powStudy(ii).Pub, powStudy(ii).Pub_f] = ...
+            WecPower(Zi,Fe,...
+            powStudy(ii).cntrl(powStudy(ii).x),...
+            Kt,powStudy(ii).R,N);
+        powStudy(ii).efc = powStudy(ii).P/powStudy(ii).Pub;
+    else
+        
+        % get upper bound only
+        powStudy(ii).x = NaN(size(powStudy(ii).x0));
+        powStudy(ii).gainMatrix = mimoPi(powStudy(ii).x0,...
+            powStudy(ii).nGains,powStudy(ii).nDof,1,...
+            powStudy(ii).symFlag,powStudy(ii).diagFlag);
+        fval = NaN;
+        ef = NaN;
+        outp = NaN;
+        
+        [~, ~, powStudy(ii).Pub, powStudy(ii).Pub_f] = ...
+            WecPower(Zi,Fe,...
+            powStudy(ii).cntrl(powStudy(ii).x0),...
+            Kt,powStudy(ii).R,N);
+        
+        powStudy(ii).P = powStudy(ii).Pub;
+        powStudy(ii).P_f = powStudy(ii).Pub_f;
+    end
+    
     powStudy(ii).fval = fval;
     powStudy(ii).ef = ef;
     powStudy(ii).outp = outp;
-    [powStudy(ii).P, powStudy(ii).P_f, powStudy(ii).Pub, powStudy(ii).Pub_f] = ...
-        WecPower(Zi,Fe,...
-        powStudy(ii).cntrl(powStudy(ii).x),...
-        Kt,powStudy(ii).R,N);
-    powStudy(ii).efc = powStudy(ii).P/powStudy(ii).Pub;
     
+    powStudy(ii).efc = powStudy(ii).P/powStudy(ii).Pub;
+
 end
 
 %% plotting
