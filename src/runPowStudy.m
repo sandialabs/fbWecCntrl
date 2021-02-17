@@ -279,6 +279,7 @@ if options.plotFlag
     ylabel('Normalized power \& excitation [ ]','interpreter','latex')
     xlim([0.2, 1.4])
     set(gca,'YTick',0:0.25:1)
+    set(gca,'xscale','log')
     set(findall(fh(3),'-property','FontSize'),'FontSize',12)
     set(l1,'FontSize',10)
     ylim([0,Inf])
