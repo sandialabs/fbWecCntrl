@@ -46,12 +46,13 @@ Tp = 3;
 gamma = 1.0;
 S = jonswap(2*pi*f,[Hm0, Tp, gamma]);
 
-opts.symFlag = 1;   % force controller to be symmetric
-opts.diagFlag = 0;  % allow for cross-coupling control
+symFlag = 1;   % force controller to be symmetric
+diagFlag = 0;  % allow for cross-coupling control
 
 %% Run analysis
 
-[powStudy,fh] = runPowStudy(f,Zi,Hex,S,'plotFlag',1,'Kt',Kt,'R',R,'N',N);
+[powStudy,fh] = runPowStudy(f,Zi,Hex,S,...
+    'plotFlag',1,'Kt',Kt,'R',R,'N',N,'symFlag',symFlag,'diagFlag',diagFlag);
 disp(powStudy(1).gainMatrix)    % displays gain matrix as complex matrix
                                 % without frequency dependency, such that
                                 % k(i,j) = kP(i,j) -1i kI(i,j)
