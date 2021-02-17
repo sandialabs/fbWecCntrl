@@ -206,6 +206,10 @@ if options.plotFlag
     setoptions(h,'XLim',[f(1), f(end)]);
     title('')
     
+    allAxes = findall(fh(1),'type','axes');
+    linkaxes(allAxes,'x')
+    
+    
     %----------------------------------------------------------------------
     fh(2) = figure('name','Impedance',...
         'color','white',...
