@@ -64,18 +64,6 @@ n = length(f);
 
 nDof = size(Hex,1);
 
-% if isnan(options.Kt)
-%     options.Kt = eye(size(Hex,1));
-% end
-% 
-% if isnan(options.R)
-%     options.R = eye(size(Hex,1))*0;
-% end
-% 
-% if isnan(options.N)
-%     options.N = eye(size(Hex,1));
-% end
-
 Kt = options.Kt;
 R = options.R;
 N = options.N;
