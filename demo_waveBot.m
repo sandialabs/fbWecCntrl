@@ -56,7 +56,5 @@ end
 
 %% Save figures
 
-% export_fig(fullfile('.','wavebot_fbController.pdf'),...
-%     '-p2',fh(3))
-% export_fig(fullfile('.','wavebot_impedanceMatching.pdf'),...
-%     '-p2','-painters',fh(4))
+% export_fig('wavebot_fbController.pdf','-p2',fh(3))
+% export_fig('wavebot_impedanceMatching.pdf','-p2','-painters',fh(4))

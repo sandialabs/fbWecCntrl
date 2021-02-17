@@ -65,7 +65,5 @@ end
 
 %% Save figures
 
-% export_fig(fullfile('.','foswec_fbController.pdf'),...
-%     '-p2',fh(3))
-% export_fig(fullfile('.','foswec_impedanceMatching.pdf'),...
-%     '-p2','-painters',fh(4))
+% export_fig('foswec_fbController.pdf','-p2',fh(3))
+% export_fig('foswec_impedanceMatching.pdf','-p2','-painters',fh(4))
