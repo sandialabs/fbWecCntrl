@@ -3,15 +3,18 @@
 **NOTE: this code is fully-functional, but not supported and users should not expect responses to issues**
 
 fbWecCntrl is a set of MATLAB functions and scripts demonstrating a causal impedance matching approach to wave energy converter (WEC) control design.
-The methods applied in this code are detailed in a journal paper manuscript (preprint available here https://doi.org/10.36227/techrxiv.12939488), and is a fork of code originally published on [MHK-DR](https://mhkdr.openei.org/submissions/315).
+The methods applied in this code are detailed in a journal paper (https://doi.org/10.1016/j.rser.2021.110791), and are a fork of code originally published on [MHK-DR](https://mhkdr.openei.org/submissions/315).
 
 ```bibtex
 @Article{Coe2020practical,
-  author       = {Ryan G. Coe and Giorgio Bacelli and Dominic Forbush},
-  title        = {A practical approach to wave energy modeling and control},
-  date         = {2020},
-  journaltitle = {Renewable and Sustainable Energy Reviews (under review)},
-  doi          = {10.36227/techrxiv.12939488}
+  title = {A practical approach to wave energy modeling and control},
+  journal = {Renewable and Sustainable Energy Reviews},
+  volume = {142},
+  pages = {110791},
+  year = {2021},
+  issn = {1364-0321},
+  doi = {10.1016/j.rser.2021.110791},
+  url = {https://www.sciencedirect.com/science/article/pii/S1364032121000861}
 }
 ```
 
