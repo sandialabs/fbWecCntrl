@@ -20,6 +20,7 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
     %   sizeThresh  threshold above which for-loop method will be used;
     %               this approach is generally slower, until your machine
     %               needs to use SWAP memory (default: 2e11)
+    %   k           decay factor for pink noise (default: 0.5)
     %
     % Returns:
     %   t         time series vector [s]
@@ -67,6 +68,7 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
         options.dt (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1e-2
         options.RMS (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1
         options.sizeThresh (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 2e11
+        options.k (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 0.5
     end
     
     df = 1/T;
@@ -82,7 +84,7 @@ function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
     
     switch lower(options.color)
         case 'pink'
-            Amp = ones(size(f_vec)) ./ sqrt(f_vec);
+            Amp = ones(size(f_vec)) ./ f_vec.^options.k;
         case 'white'
             Amp = ones(size(f_vec));
         otherwise
