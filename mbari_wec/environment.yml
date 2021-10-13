@@ -1,0 +1,17 @@
+name: mbari_wec_2021
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - scipy
+  - matplotlib
+  - cartopy
+  - geopy
+  - pandas
+  - numpy
+  - xarray
+  - seaborn
+  - palettable
+  - pip
+  - pip:
+    - mhkit
