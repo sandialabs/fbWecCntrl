@@ -1,4 +1,4 @@
-Example plotting for the MBARI WEC 2021 dataset. For more information about the MBARI WEC, please see https://doi.org/10.1007/s40722-021-00197-9.
+Example plotting for the MBARI WEC 2021 dataset (can be downloaded from MHK-DR: https://dx.doi.org/10.15473/1825670). For more information about the MBARI WEC, please see https://doi.org/10.1007/s40722-021-00197-9.
 
 ## Getting started
 
