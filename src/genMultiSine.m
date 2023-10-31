@@ -1,152 +1,200 @@
-function [t,u,fFreq,uFreq,phFreq,p2p] = genMultiSine(fmin,fmax,T,options)
-    % genMultiSine   generate multisine signal
-    %
-    % Generates a white or pink multi-sine signal to be used in system
-    % identification (SID) experiments. A large set of phase realizations
-    % are generated and the realization with the smallest peak-to-peak
-    % range is returned.
-    %
-    % Arguments:
-    %   fmin      minimum frequency [Hz]
-    %   fmax      maximum frequency [Hz]
-    %   T         period of signal [s]
-    %
-    % optional name-value pairs
-    %   numPhases   number of phasings to consider (default: 1e2) 
-    %   plotFlag    set to 1 for plots (default: 0) 
-    %   color       'pink' or 'white' (default: 'white') 
-    %   dt          time-step for time series [s] (default: 1e-2) 
-    %   RMS         root-mean-square amplitude (default: 1)
-    %   sizeThresh  threshold above which for-loop method will be used;
-    %               this approach is generally slower, until your machine
-    %               needs to use SWAP memory (default: 2e11)
-    %   k           decay factor for pink noise (default: 0.5)
-    %
-    % Returns:
-    %   t         time series vector [s]
-    %   u         signal time vector [*]
-    %   fFreq     frequency vector [Hz]
-    %   uFreq     signal frequency vector [*]
-    %   phFreq    phase vector [rad]
-    %   p2p       peak-to-peak signal range [*]
-    %
-    % Example:
-    %
-    % [t,u] = genMultiSine(0.25,1,300,'plotFlag',true,'color','white');
-    %
-    % Authors: Giorgio Bacelli (original), Ryan Coe (minor tweaks)
-    
-    % ---------------------------------------------------------------------
-    % Copyright 2020 National Technology & Engineering Solutions of Sandia,
-    % LLC (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the
-    % U.S. Government retains certain rights in this software.
-    %
-    % This file is part of fbWecCntrl.
-    %
-    %     fbWecCntrl is free software: you can redistribute it and/or
-    %     modify it under the terms of the GNU General Public License as
-    %     published by the Free Software Foundation, either version 3 of
-    %     the License, or (at your option) any later version.
-    %
-    %     fbWecCntrl is distributed in the hope that it will be useful, but
-    %     WITHOUT ANY WARRANTY; without even the implied warranty of
-    %     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    %     General Public License for more details.
-    %
-    %     You should have received a copy of the GNU General Public License
-    %     along with fbWecCntrl.  If not, see
-    %     <https://www.gnu.org/licenses/>.
-    % ---------------------------------------------------------------------
-    
-    arguments
-        fmin (1,1) double {mustBeFinite,mustBeReal,mustBePositive}
-        fmax (1,1) double {mustBeFinite,mustBeReal,mustBePositive}
-        T (1,1) double {mustBeFinite,mustBeReal,mustBePositive}
-        options.numPhases (1,1) double {mustBeFinite,mustBeReal,mustBePositive}  = 1e2
-        options.plotFlag (1,1) {mustBeNumericOrLogical} = 0
-        options.color (1,:) string = 'white'
-        options.dt (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1e-2
-        options.RMS (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1
-        options.sizeThresh (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 2e11
-        options.k (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 0.5
-    end
-    
-    df = 1/T;
-    dt = options.dt;
-    
-    ind_fmin = round(fmin / df);
-    ind_fmax = round(fmax / df);
-    
-    f_vec = (ind_fmin:ind_fmax)'*df;
-    N_freq = length(f_vec);
-    
-    ph_mat = 2*pi*rand(N_freq, options.numPhases);
-    
-    switch lower(options.color)
-        case 'pink'
-            Amp = ones(size(f_vec)) ./ f_vec.^options.k;
-        case 'white'
-            Amp = ones(size(f_vec));
-        otherwise
-            error('Unkown noise color (choose ''pink'' or ''white'')')
-    end
+function [t,f,OUT] = genMultiSine_NInput(fmin,fmax,T,options)
+% genMultiSine   generate multisine signal
+%
+% Generates a set of white or pink multi-sine signals for use in system
+% identification (SID) experiments.
+%
+% A large set (specified by numPhases) of phase realizations is generated
+% and the signals are sorted in ascending order of peak-to-peak amplitude;
+% signals with peak-to-peak (p2p) larger than 10% of min p2p are discarded.
+%
+% From the remaining signals, a combination of (NumExp x NumInput) signals
+% is sampled. The condition number for inversion of the spectrum at
+% each frequency k for each (NumExp x NumInput) group are calculated.
+% Lastly, the group with the smallest max conditional number is taken as
+% the set of output signals.
+%
+% Arguments:
+%   fmin      minimum frequency [Hz]
+%   fmax      maximum frequency [Hz]
+%   T         period of signal [s]
+%
+% optional name-value pairs
+%   numPhases   number of phasings to consider (default: 1e2)
+%   plotFlag    set to 1 for plots (default: 0)
+%   color       'pink' or 'white' (default: 'white')
+%   dt          time-step for time series [s] (default: 2e-2)
+%   RMS         root-mean-square amplitude (default: 1)
+%   k           decay factor for pink noise (default: 0.5)
+%   NumExp      number of experiment (default: 1)
+%   NumInput    number of input (default: 1)
+%   NumRepeat   number of cycle (default: 3)
+%
+%
+% Returns:
+%   t         time series vector [s]; [row,col] = [Nt, 1]
+%   f         frequency vector [Hz]; [row,col] = [Nf, 1]
+%   OUT       NumExp structure:
+%                xt        signal time vector [*]; [row,col] = [Nt,NumInput]
+%                Xf        signal complex frequency vector [*]; [row,col] = [Nf,NumInput]
+%
+% Example:
+% [t,f,OUT] = genMultiSine_NInput(0.05,2.5,40,...
+%    'NumExp',4,'NumRepeat',5,'k',0.75,'color','pink','dt',0.001,...
+%    'numPhases',10000,'plotFlag',1);
+%
+% Authors: Giorgio Bacelli (original), Ryan Coe (minor tweaks),
+%          Alicia (edited for N-input system)
+%
+% -------------------------------------------------------------------------
 
-    RMS_tmp = sqrt(sum(Amp.^2))/sqrt(2)/options.RMS;
-    Amp = Amp / RMS_tmp;
-    
-    t_vec = (0:dt:T-dt)';
-    exp_mat = exp(1i * 2*pi*f_vec * (t_vec'));
-    
-    probSize = options.numPhases * N_freq * length(t_vec);
-    if probSize > options.sizeThresh
-        p2p = Inf;
-        for ind_ph = 1: options.numPhases
-            fd_ms_tmp(:,ind_ph) = Amp .* exp(1i .* ph_mat(:,ind_ph));
-            td_ms_tmp(:,ind_ph) = real(fd_ms_tmp(:,ind_ph).' * exp_mat);
-            delta_amp = max(td_ms_tmp(:,ind_ph)) - min(td_ms_tmp(:,ind_ph));
-            if delta_amp < p2p
-                p2p = delta_amp;
-                ph_ms = ph_mat(:, ind_ph);
-                fd_ms = fd_ms_tmp(:,ind_ph);
-                td_ms = td_ms_tmp(:,ind_ph);
-            end
-        end
-    else
-        fd_ms_tmp = Amp .* exp(1i .* ph_mat);
-        td_ms_tmp = real(fd_ms_tmp.' * exp_mat)';
-        delta_amp = max(td_ms_tmp,[],1) - min(td_ms_tmp,[],1);
-        
-        [p2p,midx] = min(delta_amp);
-        td_ms = td_ms_tmp(:,midx);
-        fd_ms = fd_ms_tmp(:,midx);
-        ph_ms = ph_mat(:,midx);
-    end
-    
-    if options.plotFlag
-        
-        figure
-        
-        subplot 211
-        loglog(f_vec, Amp, '.')
-        xlabel('Frequency [Hz]','interpreter','latex');
-        ylabel('Amplitude','interpreter','latex');
-        title(sprintf('%s noise, $f \\in [%.2g,%.2g]$, RMS = %g',...
-            options.color,fmin,fmax, options.RMS),'interpreter','latex');
-        grid on
-        
-        subplot 212
-        plot(t_vec, td_ms)
-        xlabel('Time [s]','interpreter','latex');
-        ylabel('Ampiltude','interpreter','latex');
-        title(sprintf('period: %3g s',...
-            T),'interpreter','latex');
-        grid on
-    end
-    
-    t = t_vec;
-    u = td_ms;
-    
-    fFreq = f_vec;
-    uFreq = fd_ms;
-    phFreq = ph_ms;
+arguments
+    fmin (1,1) double {mustBeFinite,mustBeReal,mustBePositive}
+    fmax (1,1) double {mustBeFinite,mustBeReal,mustBePositive}
+    T (1,1) double {mustBeFinite,mustBeReal,mustBePositive}
+    options.numPhases (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1e2
+    options.plotFlag (1,1) {mustBeNumericOrLogical} = 0
+    options.color (1,:) string = 'white'
+    options.dt (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1e-2
+    options.RMS (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 1
+    options.k (1,1) double {mustBeFinite,mustBeReal,mustBePositive} = 0.5
+    options.NumExp (1,1) {mustBeFinite,mustBeReal,mustBePositive} = 1
+    options.NumInput (1,1) {mustBeFinite,mustBeReal,mustBePositive} = 1
+    options.NumRepeat (1,1) {mustBeFinite,mustBeReal,mustBePositive} = 3
 end
+
+% create time and frequency vector
+df = 1/T;
+dt = options.dt;
+idx_fmin = round(fmin/df);
+idx_fmax = round(fmax/df);
+f_vec = (idx_fmin:idx_fmax)'*df;
+w_vec = 2*pi*f_vec;
+Nf = length(f_vec);
+
+% phase randomized between -pi to pi
+rng('shuffle')
+ph_mat = -pi + (pi--pi).*rand(Nf,options.numPhases);
+
+% create amplitude vector
+switch lower(options.color)
+    case 'pink'
+        Amp = ones(size(f_vec)) ./ f_vec.^options.k;
+    case 'white'
+        Amp = ones(size(f_vec));
+    otherwise
+        error('Unkown noise color (choose ''pink'' or ''white'')')
+end
+
+% Create scale amplitude vector for RMS = options.RMS
+RMS = sqrt(sum(Amp.^2))/sqrt(2);
+GAIN = options.RMS/RMS;
+Amp = Amp * GAIN;
+
+% Create exp(iwt) and complex amplitude A*exp(i*theta)
+t_vec = 0:dt:T-dt;
+Nt = length(t_vec);
+exp_mat = exp(1i * (w_vec*t_vec));
+Amp_f = Amp.*exp(1i*(ph_mat));
+
+signal = real(Amp_f'*exp_mat)';
+
+% Sort signals in ascending p2p
+[p2pval,idx] = sort(max(signal)-min(signal));
+signal = signal(:,idx);
+Amp_f = Amp_f(:,idx);
+
+% Discard signals with p2p 10% greater than min(p2p)
+idx = find(p2pval <= p2pval(1)*1.1);
+signal = signal(:,idx);
+Amp_f = Amp_f(:,idx);
+
+% if size(Amp_f,2) >= 2*(options.NumInput*options.NumExp)
+%     signal = signal(:,1:2*(options.NumInput*options.NumExp));
+%     Amp_f = Amp_f(:,1:2*(options.NumInput*options.NumExp));
+%     disp('*********** Warning: samples further reduced. ***********')
+% end
+
+Nsample = size(Amp_f,2)
+
+% Conditional number
+% If a matrix is singular, then its condition number is infinite.
+
+% first check if we have enough samples
+if size(Amp_f,2) <= (options.NumInput*options.NumExp)
+    disp('*********************************************************')
+    disp('Not enough samples,')
+    disp('Please re-run for different set of randomly generated phases,')
+    disp('OR ')
+    disp('increase option.numPhases.')
+    disp('*********************************************************')
+    error('Not enough samples, please increase option.numPhases!')
+end
+
+% Generate list of possible combination of NumInput*NumExp signals
+SignalSets = nchoosek((1:size(Amp_f,2)),options.NumInput*options.NumExp);
+
+% Calculate the condition number at each frequency and choose the set with
+% smallest max condition number (best U^-1)
+currMin = 0;
+condIdx = 0;
+condVec = zeros(1,Nf); % store all condition number
+for ii = 1:size(SignalSets,1)
+    for jj = 1:Nf
+        testSig = reshape(Amp_f(jj,SignalSets(ii,:)),options.NumExp,options.NumInput);
+        condVec(jj) = cond(testSig*ctranspose(testSig));
+    end
+    if max(condVec) <= currMin
+        currMin = max(condVec);
+        condIdx = ii;
+    end
+    if condIdx == 0
+        currMin = max(condVec);
+        condIdx = ii;
+    end
+end
+SignalSetsUsed = reshape(SignalSets(condIdx,:),options.NumExp,options.NumInput);
+
+%%
+% New time vector
+t = (0:dt:options.NumRepeat*Nt*dt-dt)';
+f = f_vec;
+
+OUT =  struct('xt',{},'Xf',{});
+
+for ii = 1:options.NumExp
+    OUT(ii).xt = repmat(signal(:,SignalSetsUsed(ii,:)),options.NumRepeat,1);
+    OUT(ii).Xf = Amp_f(:,SignalSetsUsed(ii,:));
+end
+
+if options.plotFlag
+
+    figure
+    stem(f_vec, Amp, '.')
+    xlabel('Frequency [Hz]','interpreter','latex');
+    ylabel('Amplitude','interpreter','latex');
+    title(sprintf('%s noise, $f \\in [%.2g,%.2g]$, RMS = %g',...
+        options.color,fmin,fmax, options.RMS),'interpreter','latex');
+    grid on
+
+
+    for ii = 1:options.NumExp
+        figure
+        for jj = 1:options.NumInput
+            subplot(options.NumInput,1,jj)
+            plot(t, OUT(ii).xt(:,jj))
+            hold on
+            plot(t_vec,real(OUT(ii).Xf(:,jj)'*exp_mat)','--')
+            legend('OUT','calculation')
+            xlabel('Time [s]','interpreter','latex');
+            ylabel('Ampiltude','interpreter','latex');
+            title(['Signal: ' num2str(jj)])
+            grid on
+        end
+        sgtitle(['Experiment: ', num2str(ii)],'interpreter','latex');
+    end
+end
+
+end
+
+
