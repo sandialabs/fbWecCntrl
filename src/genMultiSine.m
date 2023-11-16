@@ -1,4 +1,4 @@
-function [t,f,OUT] = genMultiSine_NInput(fmin,fmax,T,options)
+function [t,f,OUT] = genMultiSine(fmin,fmax,T,options)
 % genMultiSine   generate multisine signal
 %
 % Generates a set of white or pink multi-sine signals for use in system
