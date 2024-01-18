@@ -9,7 +9,8 @@ Top (this) level:
 	data files, corresponding to the Filename column of the test log (these are time-
 	stamped Mountain time). A suffix "full" indicates a wave run which will include
 	wave basin wave data. A suffix "sys" indicates that it is not a wave run and 
-	contains only waveBot system data. THIS IS AVAILALBE AT $$$$MHKDRLINK$$$$$
+	contains only waveBot system data. THIS IS AVAILABLE AT 
+	https://mhkdr.openei.org/submissions/518
 	and must be unzipped and placed in an accessible directory. Codes use explicit
 	path names that will need to be modified to correspond to this directory
 
